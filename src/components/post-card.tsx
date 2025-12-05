@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Twitter, Copy, Check } from "lucide-react";
+import { Globe, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import {
   Card,
@@ -12,6 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Coin } from "@/hooks/use-paragraph";
+import GeckoTerminal from "@/components/gecko-terminal-icon";
 
 interface PostCardProps {
   coin: Coin;
@@ -22,8 +23,42 @@ function truncateAddress(address: string) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
-function getSocialLinks(coin: Coin) {
+function XIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+function getSocialLinks(coin: Coin, basescanUrl: string, geckoUrl: string) {
   const links: { name: string; url: string; icon: React.ReactNode }[] = [];
+
+  const externalUrl = coin.metadata.external_url;
+  if (externalUrl) {
+    const isParagraph = externalUrl.toLowerCase().includes("paragraph");
+    links.push({
+      name: isParagraph ? "Paragraph" : "Website",
+      url: externalUrl,
+      icon: isParagraph ? (
+        <Image src="/paragraph.svg" alt="Paragraph" width={16} height={16} className="grayscale" />
+      ) : (
+        <Globe className="size-4" />
+      ),
+    });
+  }
+
+  links.push({
+    name: "Basescan",
+    url: basescanUrl,
+    icon: <Image src="/etherscan.svg" alt="Basescan" width={16} height={16} className="grayscale" />,
+  });
+
+  links.push({
+    name: "GeckoTerminal",
+    url: geckoUrl,
+    icon: <GeckoTerminal width={16} height={16} className="grayscale" />,
+  });
 
   if (coin.metadata.links) {
     for (const link of coin.metadata.links) {
@@ -32,9 +67,9 @@ function getSocialLinks(coin: Coin) {
         link.name.toLowerCase().includes("x")
       ) {
         links.push({
-          name: "Twitter",
+          name: "X",
           url: link.url,
-          icon: <Twitter className="size-4" />,
+          icon: <XIcon className="size-4" />,
         });
       }
     }
@@ -47,7 +82,9 @@ export function PostCard({ coin, onTrade }: PostCardProps) {
   const [copied, setCopied] = useState(false);
   const imageUrl = coin.metadata.image || coin.metadata.logoURI;
   const externalUrl = coin.metadata.external_url;
-  const socialLinks = getSocialLinks(coin);
+  const basescanUrl = `https://basescan.org/address/${coin.contractAddress}`;
+  const geckoUrl = `https://www.geckoterminal.com/base/pools/${coin.contractAddress}`;
+  const socialLinks = getSocialLinks(coin, basescanUrl, geckoUrl);
   const preview = coin.metadata.description?.slice(0, 150) || "";
 
   const handleCopyAddress = async () => {
@@ -55,8 +92,6 @@ export function PostCard({ coin, onTrade }: PostCardProps) {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
-  const basescanUrl = `https://basescan.org/address/${coin.contractAddress}`;
 
   return (
     <Card className="overflow-hidden flex flex-col h-full pt-0 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
@@ -109,22 +144,20 @@ export function PostCard({ coin, onTrade }: PostCardProps) {
         >
           {coin.metadata.name}
         </a>
-        {socialLinks.length > 0 && (
-          <div className="flex items-center gap-2">
-            {socialLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                title={link.name}
-              >
-                {link.icon}
-              </a>
-            ))}
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {socialLinks.map((link) => (
+            <a
+              key={link.name}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              title={link.name}
+            >
+              {link.icon}
+            </a>
+          ))}
+        </div>
       </CardHeader>
       <CardContent className="py-0">
         {preview && (
