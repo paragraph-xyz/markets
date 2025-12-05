@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Paragraph Coins Demo",
+  title: "Paragraph Markets",
   description: "Trade popular coins on Paragraph",
 };
 
