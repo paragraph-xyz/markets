@@ -5,18 +5,11 @@ import Image from "next/image";
 import { useState } from "react";
 import GeckoTerminal from "@/components/gecko-terminal-icon";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { Coin } from "@/hooks/use-paragraph";
 
 interface WriterCardProps {
   coin: Coin;
-  onTrade: () => void;
 }
 
 function truncateAddress(address: string) {
@@ -98,22 +91,27 @@ function getSocialLinks(coin: Coin, basescanUrl: string, geckoUrl: string) {
   return links;
 }
 
-export function WriterCard({ coin, onTrade }: WriterCardProps) {
+export function WriterCard({ coin }: WriterCardProps) {
   const [copied, setCopied] = useState(false);
   const imageUrl = coin.metadata.image || coin.metadata.logoURI;
-  const externalUrl = coin.metadata.external_url;
   const basescanUrl = `https://basescan.org/address/${coin.contractAddress}`;
   const geckoUrl = `https://www.geckoterminal.com/base/pools/${coin.contractAddress}`;
   const socialLinks = getSocialLinks(coin, basescanUrl, geckoUrl);
 
-  const handleCopyAddress = async () => {
-    await navigator.clipboard.writeText(coin.contractAddress);
+  const handleCopyAddress = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigator.clipboard.writeText(coin.contractAddress);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleLinkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
-    <Card className="overflow-hidden flex flex-col h-full shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+    <Card className="overflow-hidden flex flex-col h-full shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer">
       <div className="relative aspect-video w-full overflow-hidden bg-muted rounded-2xl">
         {imageUrl && (
           <Image
@@ -139,6 +137,7 @@ export function WriterCard({ coin, onTrade }: WriterCardProps) {
               target="_blank"
               rel="noopener noreferrer"
               className="font-mono hover:text-foreground transition-colors"
+              onClick={handleLinkClick}
             >
               {truncateAddress(coin.contractAddress)}
             </a>
@@ -156,14 +155,9 @@ export function WriterCard({ coin, onTrade }: WriterCardProps) {
             </button>
           </div>
         </div>
-        <a
-          href={externalUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-lg font-semibold hover:underline line-clamp-2"
-        >
+        <span className="text-lg font-semibold line-clamp-2">
           {coin.metadata.name}
-        </a>
+        </span>
         <div className="flex items-center gap-2">
           {socialLinks.map((link) => (
             <a
@@ -173,6 +167,7 @@ export function WriterCard({ coin, onTrade }: WriterCardProps) {
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-foreground transition-colors"
               title={link.name}
+              onClick={handleLinkClick}
             >
               {link.icon}
             </a>
@@ -186,11 +181,6 @@ export function WriterCard({ coin, onTrade }: WriterCardProps) {
           </p>
         )}
       </CardContent>
-      <CardFooter className="mt-auto pt-4">
-        <Button onClick={onTrade} className="w-full">
-          Trade
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

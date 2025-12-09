@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, CheckCircle2, Copy, XCircle } from "lucide-react";
+import { Check, CheckCircle2, Copy, X, XCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createWalletClient, custom, formatUnits, parseEther } from "viem";
 import {
@@ -13,21 +14,12 @@ import {
 import { getConnectorClient, switchChain } from "wagmi/actions";
 import { base } from "wagmi/chains";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type Coin, useParagraphAPI, useQuote } from "@/hooks/use-paragraph";
 
-interface TradeModalProps {
-  coin: Coin | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+interface TradeSidebarProps {
+  coin: Coin;
 }
 
 const ETH_AMOUNTS = ["0.001", "0.01", "0.05", "0.1"];
@@ -48,7 +40,8 @@ const ERC20_ABI = [
   },
 ] as const;
 
-export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
+export function TradeSidebar({ coin }: TradeSidebarProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"buy" | "sell">("buy");
   const [buyAmount, setBuyAmount] = useState("");
   const [sellAmount, setSellAmount] = useState("");
@@ -64,21 +57,21 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
   const api = useParagraphAPI();
 
   const { data: coinBalance, refetch: refetchBalance } = useReadContract({
-    address: coin?.contractAddress as `0x${string}`,
+    address: coin.contractAddress as `0x${string}`,
     abi: ERC20_ABI,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
     chainId: base.id,
     query: {
-      enabled: !!coin && !!address,
+      enabled: !!address,
     },
   });
 
   const buyAmountWei = buyAmount ? parseEther(buyAmount) : 0n;
   const { data: buyQuote, isLoading: isQuoteLoading } = useQuote(
-    coin?.id || "",
+    coin.id,
     buyAmountWei,
-    !!coin && buyAmountWei > 0n,
+    buyAmountWei > 0n,
   );
 
   const hasCoinBalance = coinBalance !== undefined && coinBalance > 0n;
@@ -90,24 +83,12 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
     }
   }, [canSell, activeTab]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Reset form state when coin changes
   useEffect(() => {
-    setBuyAmount("");
-    setSellAmount("");
-    setTransactionResult(null);
-  }, [coin?.id]);
-
-  useEffect(() => {
-    if (open) {
-      refetchBalance();
-    }
-  }, [open, refetchBalance]);
+    refetchBalance();
+  }, [refetchBalance]);
 
   const handleBuy = async () => {
-    if (!coin || !buyAmount) {
-      console.warn("Something went wrong", { coin, buyAmount });
-      return;
-    }
+    if (!buyAmount) return;
 
     setIsLoading(true);
     try {
@@ -141,7 +122,7 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
   };
 
   const handleSell = async () => {
-    if (!coin || !sellAmount || !coinBalance) return;
+    if (!sellAmount || !coinBalance) return;
 
     setIsLoading(true);
     try {
@@ -188,75 +169,87 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
 
   const handlePercentageSell = (percentage: number) => {
     if (!coinBalance) return;
-    const decimals = coin?.metadata.decimals || 18;
+    const decimals = coin.metadata.decimals || 18;
     const balance = Number(formatUnits(coinBalance, decimals));
     const amount = (balance * percentage) / 100;
     setSellAmount(amount.toString());
   };
 
-  const handleCloseResult = () => {
-    setTransactionResult(null);
-    onOpenChange(false);
+  const handleClose = () => {
+    router.push("/");
   };
 
-  if (!coin) return null;
+  const handleCloseResult = () => {
+    setTransactionResult(null);
+    router.push("/");
+  };
 
   if (transactionResult) {
     return (
-      <Dialog open={open} onOpenChange={handleCloseResult}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader className="items-center text-center">
-            {transactionResult.type === "success" ? (
-              <>
-                <CheckCircle2 className="size-12 text-green-500 mb-2" />
-                <DialogTitle>
-                  {transactionResult.action === "buy"
-                    ? "Coins purchased successfully!"
-                    : "Coins sold successfully!"}
-                </DialogTitle>
-                <DialogDescription className="text-center">
-                  {transactionResult.action === "buy"
-                    ? "You're now invested in this content. Share it to drive engagement and pump the value of your position."
-                    : "Your position has been closed and funds are now available. Thanks for supporting quality content!"}
-                </DialogDescription>
-              </>
-            ) : (
-              <>
-                <XCircle className="size-12 text-destructive mb-2" />
-                <DialogTitle>Transaction failed</DialogTitle>
-                <div className="flex items-start gap-2 mt-2">
-                  <p className="text-sm text-destructive flex-1">
-                    {transactionResult.message.length > 100
-                      ? `${transactionResult.message.slice(0, 100)}...`
-                      : transactionResult.message}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      await navigator.clipboard.writeText(
-                        transactionResult.message,
-                      );
-                      setCopiedError(true);
-                      setTimeout(() => setCopiedError(false), 2000);
-                    }}
-                    className="p-1 hover:bg-muted rounded transition-colors shrink-0"
-                    title="Copy full error"
-                  >
-                    {copiedError ? (
-                      <Check className="size-4 text-green-500" />
-                    ) : (
-                      <Copy className="size-4 text-muted-foreground" />
-                    )}
-                  </button>
-                </div>
-              </>
-            )}
-          </DialogHeader>
-          <Button onClick={handleCloseResult} className="w-full mt-4">
+      <div className="h-full flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="text-lg font-semibold">
+            Trade ${coin.metadata.symbol}
+          </h2>
+          <button
+            type="button"
+            onClick={handleCloseResult}
+            className="p-1 hover:bg-muted rounded-lg transition-colors"
+          >
+            <X className="size-5" />
+          </button>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
+          {transactionResult.type === "success" ? (
+            <>
+              <CheckCircle2 className="size-16 text-green-500 mb-4" />
+              <h3 className="text-xl font-semibold">
+                {transactionResult.action === "buy"
+                  ? "Coins purchased successfully!"
+                  : "Coins sold successfully!"}
+              </h3>
+              <p className="text-sm text-muted-foreground mt-2 max-w-sm">
+                {transactionResult.action === "buy"
+                  ? "You're now invested in this content. Share it to drive engagement and pump the value of your position."
+                  : "Your position has been closed and funds are now available. Thanks for supporting quality content!"}
+              </p>
+            </>
+          ) : (
+            <>
+              <XCircle className="size-16 text-destructive mb-4" />
+              <h3 className="text-xl font-semibold">Transaction failed</h3>
+              <div className="flex items-start gap-2 mt-4 max-w-sm">
+                <p className="text-sm text-destructive flex-1 text-left">
+                  {transactionResult.message.length > 100
+                    ? `${transactionResult.message.slice(0, 100)}...`
+                    : transactionResult.message}
+                </p>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(
+                      transactionResult.message,
+                    );
+                    setCopiedError(true);
+                    setTimeout(() => setCopiedError(false), 2000);
+                  }}
+                  className="p-1 hover:bg-muted rounded transition-colors shrink-0"
+                  title="Copy full error"
+                >
+                  {copiedError ? (
+                    <Check className="size-4 text-green-500" />
+                  ) : (
+                    <Copy className="size-4 text-muted-foreground" />
+                  )}
+                </button>
+              </div>
+            </>
+          )}
+          <Button onClick={handleCloseResult} className="mt-6">
             Close
           </Button>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
     );
   }
 
@@ -265,12 +258,24 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
     : "0";
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Trade ${coin.metadata.symbol}</DialogTitle>
-        </DialogHeader>
+    <div className="h-full flex flex-col">
+      <div className="flex items-center justify-between p-4 border-b">
+        <div>
+          <h2 className="text-lg font-semibold">
+            Trade ${coin.metadata.symbol}
+          </h2>
+          <p className="text-sm text-muted-foreground">{coin.metadata.name}</p>
+        </div>
+        <button
+          type="button"
+          onClick={handleClose}
+          className="p-1 hover:bg-muted rounded-lg transition-colors"
+        >
+          <X className="size-5" />
+        </button>
+      </div>
 
+      <div className="flex-1 p-4 overflow-auto">
         <Tabs
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as "buy" | "sell")}
@@ -390,7 +395,7 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
             </Button>
           </TabsContent>
         </Tabs>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
