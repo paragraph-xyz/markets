@@ -30,12 +30,12 @@ export function ChartPanel() {
   }
 
   return (
-    <div className="hidden md:flex flex-col flex-1 border-x bg-card/50">
-      <div className="p-4 border-b flex items-center justify-between">
+    <div className="hidden md:flex flex-col flex-1 bg-card/50">
+      <div className="p-4 flex items-center justify-between">
         <div>
-          <h2 className="font-semibold">Price Chart</h2>
+          <h2 className="text-lg font-semibold font-header">Price Chart</h2>
           {poolName && (
-            <p className="text-xs text-muted-foreground">{poolName}</p>
+            <p className="text-sm text-muted-foreground">{poolName}</p>
           )}
         </div>
         <div className="flex gap-1">

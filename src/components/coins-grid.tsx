@@ -1,5 +1,6 @@
 "use client";
 
+import { LayoutGroup } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CoinCard } from "@/components/coin-card";
@@ -50,7 +51,7 @@ export function CoinsGrid() {
   const { data: coins, isLoading, error } = usePopularCoins();
 
   const wrapperClass = hasCoinSelected
-    ? "w-[280px] shrink-0 border-r bg-card/50 overflow-y-auto p-4 hidden md:block"
+    ? "w-[280px] shrink-0 bg-card/50 overflow-y-auto p-4 hidden md:block"
     : "flex-1 p-4 md:p-8 overflow-y-auto";
 
   const gridClass = hasCoinSelected
@@ -97,23 +98,25 @@ export function CoinsGrid() {
           All Coins
         </h2>
       )}
-      <div className={gridClass}>
-        {coins.map((coin) => (
-          <Link
-            key={coin.id}
-            href={`/coin/${coin.contractAddress}`}
-            prefetch={true}
-            scroll={false}
-          >
-            <CoinCard
-              coin={coin}
-              variant={isPostCoin(coin) ? "post" : "writer"}
-              compact={hasCoinSelected}
-              isSelected={selectedAddress === coin.contractAddress}
-            />
-          </Link>
-        ))}
-      </div>
+      <LayoutGroup>
+        <div className={gridClass}>
+          {coins.map((coin) => (
+            <Link
+              key={coin.id}
+              href={`/coin/${coin.contractAddress}`}
+              prefetch={true}
+              scroll={false}
+            >
+              <CoinCard
+                coin={coin}
+                variant={isPostCoin(coin) ? "post" : "writer"}
+                compact={hasCoinSelected}
+                isSelected={selectedAddress === coin.contractAddress}
+              />
+            </Link>
+          ))}
+        </div>
+      </LayoutGroup>
     </div>
   );
 }

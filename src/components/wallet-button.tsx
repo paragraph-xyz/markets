@@ -3,7 +3,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { LogOut, Wallet } from "lucide-react";
 import { useDisconnect } from "wagmi";
-import { Button } from "@/components/ui/button";
+import { GlassBubble } from "@/components/ui/glass-bubble";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,31 +46,48 @@ export function WalletButton() {
             {(() => {
               if (!connected) {
                 return (
-                  <Button onClick={openConnectModal} variant="outline">
+                  <GlassBubble
+                    onClick={openConnectModal}
+                    variant="pill"
+                    tint="normal"
+                    blur="normal"
+                    hoverEffect="expand"
+                    className="px-4 py-2 cursor-pointer flex items-center gap-2"
+                  >
                     <Wallet className="size-4" />
-                    Connect
-                  </Button>
+                    <span className="font-medium">Connect</span>
+                  </GlassBubble>
                 );
               }
 
               if (chain.unsupported) {
                 return (
-                  <Button
+                  <GlassBubble
                     onClick={openConnectModal}
-                    variant="destructive"
-                    size="sm"
+                    variant="pill"
+                    tint="normal"
+                    blur="normal"
+                    color="primary"
+                    hoverEffect="expand"
+                    className="px-4 py-2 cursor-pointer"
                   >
-                    Wrong network
-                  </Button>
+                    <span className="font-medium text-destructive">Wrong network</span>
+                  </GlassBubble>
                 );
               }
 
               return (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="outline">
-                      <Wallet className="size-4" />
-                    </Button>
+                    <GlassBubble
+                      variant="icon"
+                      tint="normal"
+                      blur="normal"
+                      hoverEffect="expand"
+                      className="cursor-pointer"
+                    >
+                      <Wallet className="size-4 h-10 w-10 p-2" />
+                    </GlassBubble>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48 p-2">
                     <DropdownMenuLabel className="font-normal px-2 py-1.5">

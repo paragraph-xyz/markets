@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Copy, Globe } from "lucide-react";
+import { motion } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
 import GeckoTerminal from "@/components/gecko-terminal-icon";
@@ -134,7 +135,11 @@ export function CoinCard({
           isSelected ? "bg-accent border-primary" : "bg-card"
         }`}
       >
-        <div className="relative size-10 rounded-lg overflow-hidden bg-muted shrink-0">
+        <motion.div
+          layoutId={`coin-image-${coin.contractAddress}`}
+          className="relative size-10 rounded-lg overflow-hidden bg-muted shrink-0 z-50"
+          transition={{ type: "spring", stiffness: 500, damping: 35 }}
+        >
           {imageUrl && (
             <Image
               src={imageUrl}
@@ -144,7 +149,7 @@ export function CoinCard({
               unoptimized
             />
           )}
-        </div>
+        </motion.div>
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm truncate">{coin.metadata.name}</p>
           <p className="text-xs text-muted-foreground">
@@ -157,7 +162,11 @@ export function CoinCard({
 
   return (
     <Card className="overflow-hidden flex flex-col h-full shadow-md hover:shadow-xl hover:-translate-y-1 active:translate-y-0 active:shadow-md active:scale-[0.98] transition-all duration-150 group cursor-pointer">
-      <div className="relative aspect-video w-full overflow-hidden bg-muted rounded-2xl">
+      <motion.div
+        layoutId={`coin-image-${coin.contractAddress}`}
+        className="relative aspect-video w-full overflow-hidden bg-muted rounded-2xl z-50"
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      >
         {imageUrl && (
           <Image
             src={imageUrl}
@@ -189,7 +198,7 @@ export function CoinCard({
             ${coin.metadata.symbol}
           </span>
         </GlassBubble>
-      </div>
+      </motion.div>
       <CardHeader className=" gap-1 flex-1 flex flex-col">
         <div className="p-2 flex-1">
           <span className="text-lg font-semibold line-clamp-2">

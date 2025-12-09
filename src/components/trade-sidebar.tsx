@@ -188,7 +188,7 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
     return (
       <div className="h-full flex flex-col">
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-lg font-semibold font-header">
             Trade ${coin.metadata.symbol}
           </h2>
           <button
@@ -203,7 +203,7 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
           {transactionResult.type === "success" ? (
             <>
               <CheckCircle2 className="size-16 text-green-500 mb-4" />
-              <h3 className="text-xl font-semibold">
+              <h3 className="text-xl font-semibold font-header">
                 {transactionResult.action === "buy"
                   ? "Coins purchased successfully!"
                   : "Coins sold successfully!"}
@@ -217,7 +217,7 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
           ) : (
             <>
               <XCircle className="size-16 text-destructive mb-4" />
-              <h3 className="text-xl font-semibold">Transaction failed</h3>
+              <h3 className="text-xl font-semibold font-header">Transaction failed</h3>
               <div className="flex items-start gap-2 mt-4 max-w-sm">
                 <p className="text-sm text-destructive flex-1 text-left">
                   {transactionResult.message.length > 100
@@ -261,7 +261,7 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between p-4 border-b">
         <div>
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-lg font-semibold font-header">
             Trade ${coin.metadata.symbol}
           </h2>
           <p className="text-sm text-muted-foreground">{coin.metadata.name}</p>

@@ -69,9 +69,9 @@ export function PriceChart({ data, isLoading, className }: PriceChartProps) {
     });
 
     const series = chart.addSeries(AreaSeries, {
-      lineColor: "#f97316",
-      topColor: "rgba(249, 115, 22, 0.4)",
-      bottomColor: "rgba(249, 115, 22, 0.05)",
+      lineColor: "rgba(13, 89, 242, 0.75)",
+      topColor: "rgba(13, 89, 242, 0.4)",
+      bottomColor: "rgba(13, 89, 242, 0.05)",
       lineWidth: 2,
       priceFormat: {
         type: "price",
