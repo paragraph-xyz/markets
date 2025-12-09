@@ -13,6 +13,8 @@ type CoinCardVariant = "writer" | "post";
 interface CoinCardProps {
   coin: Coin;
   variant?: CoinCardVariant;
+  compact?: boolean;
+  isSelected?: boolean;
 }
 
 function truncateAddress(address: string) {
@@ -94,7 +96,12 @@ function getSocialLinks(coin: Coin, basescanUrl: string, geckoUrl: string) {
   return links;
 }
 
-export function CoinCard({ coin, variant = "writer" }: CoinCardProps) {
+export function CoinCard({
+  coin,
+  variant = "writer",
+  compact = false,
+  isSelected = false,
+}: CoinCardProps) {
   const [copied, setCopied] = useState(false);
   const imageUrl = coin.metadata.image || coin.metadata.logoURI;
   const basescanUrl = `https://basescan.org/address/${coin.contractAddress}`;
@@ -119,6 +126,34 @@ export function CoinCard({ coin, variant = "writer" }: CoinCardProps) {
     ? description?.slice(0, 150)
     : description;
   const showEllipsis = isPost && description && description.length > 150;
+
+  if (compact) {
+    return (
+      <div
+        className={`rounded-lg border p-3 flex items-center gap-3 transition-all cursor-pointer hover:bg-accent ${
+          isSelected ? "bg-accent border-primary" : "bg-card"
+        }`}
+      >
+        <div className="relative size-10 rounded-lg overflow-hidden bg-muted shrink-0">
+          {imageUrl && (
+            <Image
+              src={imageUrl}
+              alt={coin.metadata.name}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-medium text-sm truncate">{coin.metadata.name}</p>
+          <p className="text-xs text-muted-foreground">
+            ${coin.metadata.symbol}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Card className="overflow-hidden flex flex-col h-full shadow-md hover:shadow-xl hover:-translate-y-1 active:translate-y-0 active:shadow-md active:scale-[0.98] transition-all duration-150 group cursor-pointer">

@@ -11,8 +11,15 @@ export function SidebarWrapper({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <aside className="fixed inset-0 z-50 bg-background md:top-[65px] md:bottom-0 md:left-auto md:right-0 md:w-[400px] md:border-l md:bg-card md:animate-in md:slide-in-from-right md:duration-300">
-      {children}
-    </aside>
+    <>
+      {/* Mobile: Full screen overlay */}
+      <aside className="fixed inset-0 z-50 bg-background md:hidden">
+        {children}
+      </aside>
+      {/* Desktop: Fixed width sidebar in flex layout */}
+      <aside className="hidden md:block w-[400px] shrink-0 border-l bg-card overflow-y-auto">
+        {children}
+      </aside>
+    </>
   );
 }

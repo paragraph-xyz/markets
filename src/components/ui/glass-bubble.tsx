@@ -1,13 +1,13 @@
 "use client";
 
 import {
-  HTMLMotionProps,
+  type HTMLMotionProps,
   motion,
   useMotionValue,
   useSpring,
   useTransform,
 } from "motion/react";
-import { ReactNode, forwardRef, useEffect, useRef } from "react";
+import { forwardRef, type ReactNode, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 interface GlassBubbleProps
@@ -88,7 +88,7 @@ const GlassBubble = forwardRef<HTMLDivElement, GlassBubbleProps>(
       onMouseLeave: onMouseLeaveProp,
       ...props
     },
-    ref
+    ref,
   ) => {
     const directionX = useMotionValue(0);
     const directionY = useMotionValue(0);
@@ -108,12 +108,12 @@ const GlassBubble = forwardRef<HTMLDivElement, GlassBubbleProps>(
     const originXPx = useTransform(
       directionX,
       [-1, 0, 1],
-      [maxOffset, 0, -maxOffset]
+      [maxOffset, 0, -maxOffset],
     );
     const originYPx = useTransform(
       directionY,
       [-1, 0, 1],
-      [maxOffset, 0, -maxOffset]
+      [maxOffset, 0, -maxOffset],
     );
 
     const followScale = useTransform(distance, [0, 1], [1, 1.1]);
@@ -167,7 +167,7 @@ const GlassBubble = forwardRef<HTMLDivElement, GlassBubbleProps>(
       scale: springFollowScale,
       transformOrigin: useTransform(
         [springOriginX, springOriginY],
-        ([x, y]) => `calc(50% + ${x}px) calc(50% + ${y}px)`
+        ([x, y]) => `calc(50% + ${x}px) calc(50% + ${y}px)`,
       ),
     };
 
@@ -192,7 +192,7 @@ const GlassBubble = forwardRef<HTMLDivElement, GlassBubbleProps>(
           blur === "minimal" && "liquid-glass-blur-minimal",
           blur === "normal" && "liquid-glass-blur-normal",
           blur === "large" && "liquid-glass-blur-large",
-          className
+          className,
         )}
         initial="rest"
         whileHover="hover"
@@ -230,7 +230,7 @@ const GlassBubble = forwardRef<HTMLDivElement, GlassBubbleProps>(
         <div className="liquid-glass-content">{children}</div>
       </motion.div>
     );
-  }
+  },
 );
 GlassBubble.displayName = "GlassBubble";
 

@@ -1,6 +1,6 @@
+import { ChartPanel } from "@/components/chart-panel";
 import { CoinsGrid } from "@/components/coins-grid";
 import { Header } from "@/components/header";
-import { MainWrapper } from "@/components/main-wrapper";
 import { SidebarWrapper } from "@/components/sidebar-wrapper";
 
 export default function MainLayout({
@@ -12,10 +12,9 @@ export default function MainLayout({
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
-      <div className="flex-1 overflow-hidden">
-        <MainWrapper>
-          <CoinsGrid />
-        </MainWrapper>
+      <div className="flex-1 flex overflow-hidden">
+        <CoinsGrid />
+        <ChartPanel />
         <SidebarWrapper>{sidebar}</SidebarWrapper>
       </div>
     </div>

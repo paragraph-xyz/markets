@@ -17,7 +17,7 @@ function detectSVGFilterSupport(): boolean {
   const isFirefox = navigator.userAgent.includes("Firefox");
   if (isFirefox) {
     console.log(
-      "[SVG Filter Detection] Firefox detected - using CSS fallback for complex filters"
+      "[SVG Filter Detection] Firefox detected - using CSS fallback for complex filters",
     );
     return false;
   }
@@ -27,7 +27,7 @@ function detectSVGFilterSupport(): boolean {
     const syntaxSupported = CSS.supports("filter", "url(#test)");
     if (!syntaxSupported) {
       console.log(
-        "[SVG Filter Detection] CSS.supports failed for filter: url()"
+        "[SVG Filter Detection] CSS.supports failed for filter: url()",
       );
       return false;
     }
