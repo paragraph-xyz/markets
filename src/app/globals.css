@@ -181,4 +181,301 @@
   }
 }
 
+/* Liquid Glass Effect (macOS-style with SVG distortion) */
+.liquid-glass-wrapper {
+  position: relative;
+  display: flex;
+}
+
+/* Hide the bubble when the content is empty */
+.liquid-glass-wrapper:has(.liquid-glass-content:empty) {
+  display: none;
+}
+
+/* Visual layers container - scales on hover without affecting content */
+/* Box shadow is here so it animates with the scale */
+.liquid-glass-visual-layers {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    0 0 8px rgba(0, 0, 0, 0.04);
+}
+
+.liquid-glass-effect {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  filter: url(#glass-distortion);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.liquid-glass-tint {
+  z-index: 1;
+  position: absolute;
+  inset: 0;
+  /* Use background color with higher opacity for better contrast */
+  background: oklch(from var(--background) l c h / 0.55);
+}
+
+.liquid-glass-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  /* Border effect using box-shadow for the glass edge highlight */
+  box-shadow:
+    inset 0 0 0 1px oklch(from var(--border) l c h / 0.5),
+    inset 1px 1px 0 0 oklch(from var(--background) l c h / 0.8);
+}
+
+.liquid-glass-content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Dark mode adjustments */
+.dark .liquid-glass-tint {
+  background: oklch(from var(--background) l c h / 0.5);
+}
+
+.dark .liquid-glass-shine {
+  box-shadow:
+    inset 0 0 0 1px oklch(from var(--border) l c h / 0.4),
+    inset 1px 1px 0 0 oklch(1 0 0 / 0.1);
+}
+
+/* Variant: pill (rounded corners, not fully rounded) */
+/* No padding - content fills the bubble for full clickability */
+.liquid-glass-pill {
+  @apply rounded-2xl;
+}
+
+.liquid-glass-pill .liquid-glass-effect,
+.liquid-glass-pill .liquid-glass-tint,
+.liquid-glass-pill .liquid-glass-shine {
+  @apply rounded-2xl;
+}
+
+/* Variant: icon (circular) */
+.liquid-glass-icon {
+  @apply rounded-2xl;
+  padding: 0;
+}
+
+.liquid-glass-icon .liquid-glass-effect,
+.liquid-glass-icon .liquid-glass-tint,
+.liquid-glass-icon .liquid-glass-shine {
+  @apply rounded-2xl;
+}
+
+/* Variant: auto (rounded corners) */
+.liquid-glass-auto {
+  @apply rounded-2xl;
+}
+
+.liquid-glass-auto .liquid-glass-effect,
+.liquid-glass-auto .liquid-glass-tint,
+.liquid-glass-auto .liquid-glass-shine {
+  @apply rounded-2xl;
+}
+
+/* Modifier: fully rounded (circular) */
+.liquid-glass-wrapper.rounded-full .liquid-glass-effect,
+.liquid-glass-wrapper.rounded-full .liquid-glass-tint,
+.liquid-glass-wrapper.rounded-full .liquid-glass-shine,
+.liquid-glass-wrapper.rounded-full .liquid-glass-visual-layers {
+  border-radius: 9999px;
+}
+
+/* Tint variants - control background opacity */
+.liquid-glass-tint-heavy .liquid-glass-tint {
+  background: oklch(from var(--background) l c h / 0.75);
+}
+
+.liquid-glass-tint-light .liquid-glass-tint {
+  background: oklch(from var(--background) l c h / 0.25);
+}
+
+.liquid-glass-tint-none .liquid-glass-tint {
+  background: transparent;
+}
+
+.dark .liquid-glass-tint-heavy .liquid-glass-tint {
+  background: oklch(from var(--background) l c h / 0.7);
+}
+
+.dark .liquid-glass-tint-light .liquid-glass-tint {
+  background: oklch(from var(--background) l c h / 0.35);
+}
+
+.dark .liquid-glass-tint-none .liquid-glass-tint {
+  background: transparent;
+}
+
+/* Color variants - glass effect with colored tint (75% opacity) */
+/* Shared styles for colored glass variants */
+.liquid-glass-primary .liquid-glass-effect,
+.liquid-glass-secondary .liquid-glass-effect,
+.liquid-glass-cobalt .liquid-glass-effect,
+.liquid-glass-accent .liquid-glass-effect {
+  backdrop-filter: blur(12px) saturate(180%);
+}
+
+.liquid-glass-primary .liquid-glass-content,
+.liquid-glass-secondary .liquid-glass-content,
+.liquid-glass-cobalt .liquid-glass-content,
+.liquid-glass-accent .liquid-glass-content {
+  font-weight: 500;
+}
+
+/* Primary variant */
+.liquid-glass-primary .liquid-glass-tint {
+  background: oklch(from var(--primary) l c h / 0.75);
+}
+
+.liquid-glass-primary .liquid-glass-shine {
+  box-shadow:
+    inset 0 0 0 1px oklch(from var(--primary) l c h / 0.4),
+    inset 0 1px 0 0 oklch(from var(--primary-foreground) l c h / 0.3),
+    inset 0 -1px 0 0 oklch(from var(--primary) l c h / 0.2),
+    0 0 16px oklch(from var(--primary) l c h / 0.15);
+}
+
+.liquid-glass-primary .liquid-glass-content {
+  color: var(--primary-foreground);
+}
+
+/* Secondary variant */
+.liquid-glass-secondary .liquid-glass-tint {
+  background: oklch(from var(--secondary) l c h / 0.75);
+}
+
+.liquid-glass-secondary .liquid-glass-shine {
+  box-shadow:
+    inset 0 0 0 1px oklch(from var(--secondary) l c h / 0.4),
+    inset 0 1px 0 0 oklch(from var(--secondary-foreground) l c h / 0.3),
+    inset 0 -1px 0 0 oklch(from var(--secondary) l c h / 0.2),
+    0 0 16px oklch(from var(--secondary) l c h / 0.15);
+}
+
+.liquid-glass-secondary .liquid-glass-content {
+  color: var(--secondary-foreground);
+}
+
+/* Cobalt variant (blue accent) */
+.liquid-glass-cobalt .liquid-glass-tint {
+  background: oklch(0.5 0.2 260 / 0.75);
+}
+
+.liquid-glass-cobalt .liquid-glass-shine {
+  box-shadow:
+    inset 0 0 0 1px oklch(0.6 0.2 260 / 0.4),
+    inset 0 1px 0 0 oklch(0.9 0.05 260 / 0.3),
+    inset 0 -1px 0 0 oklch(0.4 0.2 260 / 0.2),
+    0 0 16px oklch(0.5 0.2 260 / 0.15);
+}
+
+.liquid-glass-cobalt .liquid-glass-content {
+  color: oklch(1 0 0);
+}
+
+/* Dark mode adjustments for colored variants */
+.dark .liquid-glass-primary .liquid-glass-tint {
+  background: oklch(from var(--primary) l c h / 0.75);
+}
+
+.dark .liquid-glass-primary .liquid-glass-shine {
+  box-shadow:
+    inset 0 0 0 1px oklch(from var(--primary) l c h / 0.5),
+    inset 0 1px 0 0 oklch(1 0 0 / 0.15),
+    inset 0 -1px 0 0 oklch(from var(--primary) l c h / 0.3),
+    0 0 20px oklch(from var(--primary) l c h / 0.2);
+}
+
+.dark .liquid-glass-secondary .liquid-glass-tint {
+  background: oklch(from var(--secondary) l c h / 0.75);
+}
+
+.dark .liquid-glass-secondary .liquid-glass-shine {
+  box-shadow:
+    inset 0 0 0 1px oklch(from var(--secondary) l c h / 0.5),
+    inset 0 1px 0 0 oklch(1 0 0 / 0.15),
+    inset 0 -1px 0 0 oklch(from var(--secondary) l c h / 0.3),
+    0 0 20px oklch(from var(--secondary) l c h / 0.2);
+}
+
+.dark .liquid-glass-cobalt .liquid-glass-tint {
+  background: oklch(0.5 0.2 260 / 0.75);
+}
+
+.dark .liquid-glass-cobalt .liquid-glass-shine {
+  box-shadow:
+    inset 0 0 0 1px oklch(0.6 0.2 260 / 0.5),
+    inset 0 1px 0 0 oklch(1 0 0 / 0.2),
+    inset 0 -1px 0 0 oklch(0.4 0.2 260 / 0.3),
+    0 0 20px oklch(0.5 0.2 260 / 0.25);
+}
+
+/* Accent variant - uses accent color */
+.liquid-glass-accent .liquid-glass-tint {
+  background: oklch(from var(--accent-foreground) l c h / 0.75);
+}
+
+.liquid-glass-accent .liquid-glass-shine {
+  box-shadow:
+    inset 0 0 0 1px oklch(from var(--accent-foreground) l c h / 0.4),
+    inset 0 1px 0 0 oklch(from var(--accent) l c h / 0.5),
+    inset 0 -1px 0 0 oklch(from var(--accent-foreground) l c h / 0.2),
+    0 0 16px oklch(from var(--accent-foreground) l c h / 0.15);
+}
+
+.liquid-glass-accent .liquid-glass-content {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.dark .liquid-glass-accent .liquid-glass-tint {
+  background: oklch(from var(--accent-foreground) l c h / 0.75);
+}
+
+.dark .liquid-glass-accent .liquid-glass-shine {
+  box-shadow:
+    inset 0 0 0 1px oklch(from var(--accent-foreground) l c h / 0.5),
+    inset 0 1px 0 0 oklch(1 0 0 / 0.15),
+    inset 0 -1px 0 0 oklch(from var(--accent-foreground) l c h / 0.3),
+    0 0 20px oklch(from var(--accent-foreground) l c h / 0.2);
+}
+
+/* Blur variants - control backdrop blur intensity */
+.liquid-glass-blur-minimal .liquid-glass-effect {
+  backdrop-filter: blur(1px) saturate(120%);
+}
+
+.liquid-glass-blur-normal .liquid-glass-effect {
+  backdrop-filter: blur(8px) saturate(180%);
+}
+
+.liquid-glass-blur-large .liquid-glass-effect {
+  backdrop-filter: blur(16px) saturate(220%);
+}
+
+/* Fallback when SVG filters not supported (class added by LiquidGlassFilter) */
+/* Uses higher specificity to override blur variants */
+/* Adds semi-transparent background so backdrop-filter is visible */
+.no-svg-filters .liquid-glass-effect {
+  filter: none !important;
+  backdrop-filter: blur(12px) saturate(180%) !important;
+  background: oklch(from var(--background) l c h / 0.5) !important;
+}
+
 
