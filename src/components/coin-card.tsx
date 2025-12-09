@@ -8,8 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { Coin } from "@/hooks/use-paragraph";
 
-interface WriterCardProps {
+type CoinCardVariant = "writer" | "post";
+
+interface CoinCardProps {
   coin: Coin;
+  variant?: CoinCardVariant;
 }
 
 function truncateAddress(address: string) {
@@ -91,7 +94,7 @@ function getSocialLinks(coin: Coin, basescanUrl: string, geckoUrl: string) {
   return links;
 }
 
-export function WriterCard({ coin }: WriterCardProps) {
+export function CoinCard({ coin, variant = "writer" }: CoinCardProps) {
   const [copied, setCopied] = useState(false);
   const imageUrl = coin.metadata.image || coin.metadata.logoURI;
   const basescanUrl = `https://basescan.org/address/${coin.contractAddress}`;
@@ -109,6 +112,11 @@ export function WriterCard({ coin }: WriterCardProps) {
   const handleLinkClick = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
+
+  const isPost = variant === "post";
+  const description = coin.metadata.description;
+  const truncatedDescription = isPost ? description?.slice(0, 150) : description;
+  const showEllipsis = isPost && description && description.length > 150;
 
   return (
     <Card className="overflow-hidden flex flex-col h-full shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer">
@@ -130,7 +138,9 @@ export function WriterCard({ coin }: WriterCardProps) {
       </div>
       <CardHeader className="py-2 gap-1">
         <div className="flex items-center justify-between gap-2">
-          <Badge variant="default">Writer</Badge>
+          <Badge variant={isPost ? "secondary" : "default"}>
+            {isPost ? "Post" : "Writer"}
+          </Badge>
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <a
               href={basescanUrl}
@@ -175,9 +185,10 @@ export function WriterCard({ coin }: WriterCardProps) {
         </div>
       </CardHeader>
       <CardContent className="py-0">
-        {coin.metadata.description && (
+        {truncatedDescription && (
           <p className="text-sm text-muted-foreground line-clamp-3">
-            {coin.metadata.description}
+            {truncatedDescription}
+            {showEllipsis && "..."}
           </p>
         )}
       </CardContent>

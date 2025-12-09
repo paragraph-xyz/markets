@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { PostCard } from "@/components/post-card";
+import { CoinCard } from "@/components/coin-card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { WriterCard } from "@/components/writer-card";
 import { type Coin, usePopularCoins } from "@/hooks/use-paragraph";
 
 function CoinCardSkeleton() {
@@ -71,11 +70,7 @@ export function CoinsGrid() {
             href={`/coin/${coin.contractAddress}`}
             prefetch={true}
           >
-            {isPostCoin(coin) ? (
-              <PostCard coin={coin} />
-            ) : (
-              <WriterCard coin={coin} />
-            )}
+            <CoinCard coin={coin} variant={isPostCoin(coin) ? "post" : "writer"} />
           </Link>
         ))}
       </div>
