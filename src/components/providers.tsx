@@ -1,17 +1,22 @@
 "use client";
 
+import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import { createConfig, http, WagmiProvider } from "wagmi";
+import { WagmiProvider } from "wagmi";
 import { base } from "wagmi/chains";
-import { injected } from "wagmi/connectors";
 
-const config = createConfig({
+const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID;
+
+if (!projectId) {
+  throw new Error("NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID is not set");
+}
+
+const config = getDefaultConfig({
+  appName: "Paragraph Markets",
+  projectId,
   chains: [base],
-  connectors: [injected()],
-  transports: {
-    [base.id]: http(),
-  },
+  ssr: true,
 });
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -28,7 +33,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider>{children}</RainbowKitProvider>
+      </QueryClientProvider>
     </WagmiProvider>
   );
 }
