@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Check, CheckCircle2, Copy, XCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import { createWalletClient, custom, formatUnits, parseEther } from "viem";
 import {
-  useConnection,
-  useConnect,
-  useReadContract,
-  useConnectors,
   useConfig,
+  useConnect,
+  useConnection,
+  useConnectors,
+  useReadContract,
 } from "wagmi";
 import { getConnectorClient, switchChain } from "wagmi/actions";
-import { parseEther, formatUnits, createWalletClient, custom } from "viem";
 import { base } from "wagmi/chains";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -18,11 +20,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { CheckCircle2, XCircle, Copy, Check } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useQuote, useParagraphAPI, type Coin } from "@/hooks/use-paragraph";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { type Coin, useParagraphAPI, useQuote } from "@/hooks/use-paragraph";
 
 interface TradeModalProps {
   coin: Coin | null;
@@ -78,7 +78,7 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
   const { data: buyQuote, isLoading: isQuoteLoading } = useQuote(
     coin?.id || "",
     buyAmountWei,
-    !!coin && buyAmountWei > 0n
+    !!coin && buyAmountWei > 0n,
   );
 
   const hasCoinBalance = coinBalance !== undefined && coinBalance > 0n;
@@ -90,11 +90,12 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
     }
   }, [canSell, activeTab]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Reset form state when coin changes
   useEffect(() => {
     setBuyAmount("");
     setSellAmount("");
     setTransactionResult(null);
-  }, [coin]);
+  }, [coin?.id]);
 
   useEffect(() => {
     if (open) {
@@ -119,10 +120,13 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
         chain: base,
         transport: custom(connectorClient),
       });
+      if (!walletClient.account) {
+        throw new Error("No account connected");
+      }
       await api.buyCoin({
         coinId: coin.id,
         client: walletClient,
-        account: walletClient.account!,
+        account: walletClient.account,
         amount: buyAmountWei,
       });
       setTransactionResult({ type: "success", action: "buy" });
@@ -152,13 +156,16 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
       });
       const decimals = coin.metadata.decimals || 18;
       const sellAmountWei = BigInt(
-        Math.floor(parseFloat(sellAmount) * 10 ** decimals)
+        Math.floor(parseFloat(sellAmount) * 10 ** decimals),
       );
 
+      if (!walletClient.account) {
+        throw new Error("No account connected");
+      }
       await api.sellCoin({
         coinId: coin.id,
         client: walletClient,
-        account: walletClient.account!,
+        account: walletClient.account,
         amount: sellAmountWei,
       });
       setTransactionResult({ type: "success", action: "sell" });
@@ -224,8 +231,11 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
                       : transactionResult.message}
                   </p>
                   <button
+                    type="button"
                     onClick={async () => {
-                      await navigator.clipboard.writeText(transactionResult.message);
+                      await navigator.clipboard.writeText(
+                        transactionResult.message,
+                      );
                       setCopiedError(true);
                       setTimeout(() => setCopiedError(false), 2000);
                     }}
@@ -276,8 +286,11 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
 
           <TabsContent value="buy" className="space-y-4 mt-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Amount (ETH)</label>
+              <label htmlFor="buy-amount" className="text-sm font-medium">
+                Amount (ETH)
+              </label>
               <Input
+                id="buy-amount"
                 type="number"
                 placeholder="0.0"
                 value={buyAmount}
@@ -311,9 +324,9 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
                             parseFloat(
                               formatUnits(
                                 BigInt(buyQuote),
-                                coin.metadata.decimals || 18
-                              )
-                            )
+                                coin.metadata.decimals || 18,
+                              ),
+                            ),
                           ).toLocaleString()} $${coin.metadata.symbol}`
                         : "-"}
                   </span>
@@ -339,7 +352,7 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
           <TabsContent value="sell" className="space-y-4 mt-4">
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-sm font-medium">
+                <label htmlFor="sell-amount" className="text-sm font-medium">
                   Amount (${coin.metadata.symbol})
                 </label>
                 <span className="text-xs text-muted-foreground">
@@ -347,6 +360,7 @@ export function TradeModal({ coin, open, onOpenChange }: TradeModalProps) {
                 </span>
               </div>
               <Input
+                id="sell-amount"
                 type="number"
                 placeholder="0.0"
                 value={sellAmount}

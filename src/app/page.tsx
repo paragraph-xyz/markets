@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useConnection, useConnect, useDisconnect, useConnectors } from "wagmi";
-import { usePopularCoins, type Coin } from "@/hooks/use-paragraph";
+import { useConnect, useConnection, useConnectors, useDisconnect } from "wagmi";
 import { PostCard } from "@/components/post-card";
-import { WriterCard } from "@/components/writer-card";
 import { TradeModal } from "@/components/trade-modal";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WriterCard } from "@/components/writer-card";
+import { type Coin, usePopularCoins } from "@/hooks/use-paragraph";
 
 function CoinCardSkeleton() {
   return (
@@ -87,6 +87,7 @@ export default function Home() {
         {isLoading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {Array.from({ length: 8 }).map((_, i) => (
+              // biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton list
               <CoinCardSkeleton key={i} />
             ))}
           </div>
@@ -107,7 +108,7 @@ export default function Home() {
                   coin={coin}
                   onTrade={() => handleTrade(coin)}
                 />
-              )
+              ),
             )}
           </div>
         )}

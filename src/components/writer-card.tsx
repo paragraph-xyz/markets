@@ -1,18 +1,18 @@
 "use client";
 
+import { Check, Copy, Globe } from "lucide-react";
 import Image from "next/image";
-import { Globe, Copy, Check } from "lucide-react";
 import { useState } from "react";
+import GeckoTerminal from "@/components/gecko-terminal-icon";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import type { Coin } from "@/hooks/use-paragraph";
-import GeckoTerminal from "@/components/gecko-terminal-icon";
 
 interface WriterCardProps {
   coin: Coin;
@@ -25,7 +25,13 @@ function truncateAddress(address: string) {
 
 function XIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="currentColor"
+      role="img"
+      aria-label="X"
+    >
       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
     </svg>
   );
@@ -41,7 +47,13 @@ function getSocialLinks(coin: Coin, basescanUrl: string, geckoUrl: string) {
       name: isParagraph ? "Paragraph" : "Website",
       url: externalUrl,
       icon: isParagraph ? (
-        <Image src="/paragraph.svg" alt="Paragraph" width={16} height={16} className="grayscale" />
+        <Image
+          src="/paragraph.svg"
+          alt="Paragraph"
+          width={16}
+          height={16}
+          className="grayscale"
+        />
       ) : (
         <Globe className="size-4" />
       ),
@@ -51,7 +63,15 @@ function getSocialLinks(coin: Coin, basescanUrl: string, geckoUrl: string) {
   links.push({
     name: "Basescan",
     url: basescanUrl,
-    icon: <Image src="/etherscan.svg" alt="Basescan" width={16} height={16} className="grayscale" />,
+    icon: (
+      <Image
+        src="/etherscan.svg"
+        alt="Basescan"
+        width={16}
+        height={16}
+        className="grayscale"
+      />
+    ),
   });
 
   links.push({
@@ -62,7 +82,10 @@ function getSocialLinks(coin: Coin, basescanUrl: string, geckoUrl: string) {
 
   if (coin.metadata.links) {
     for (const link of coin.metadata.links) {
-      if (link.name.toLowerCase().includes("twitter") || link.name.toLowerCase().includes("x")) {
+      if (
+        link.name.toLowerCase().includes("twitter") ||
+        link.name.toLowerCase().includes("x")
+      ) {
         links.push({
           name: "X",
           url: link.url,
@@ -120,11 +143,16 @@ export function WriterCard({ coin, onTrade }: WriterCardProps) {
               {truncateAddress(coin.contractAddress)}
             </a>
             <button
+              type="button"
               onClick={handleCopyAddress}
               className="p-0.5 hover:text-foreground transition-colors cursor-pointer"
               title="Copy address"
             >
-              {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+              {copied ? (
+                <Check className="size-3" />
+              ) : (
+                <Copy className="size-3" />
+              )}
             </button>
           </div>
         </div>

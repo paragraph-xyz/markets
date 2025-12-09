@@ -1,7 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { createParagraphAPI } from "@paragraph_xyz/sdk";
+import { useQuery } from "@tanstack/react-query";
 
 const api = createParagraphAPI();
 
