@@ -115,11 +115,13 @@ export function CoinCard({ coin, variant = "writer" }: CoinCardProps) {
 
   const isPost = variant === "post";
   const description = coin.metadata.description;
-  const truncatedDescription = isPost ? description?.slice(0, 150) : description;
+  const truncatedDescription = isPost
+    ? description?.slice(0, 150)
+    : description;
   const showEllipsis = isPost && description && description.length > 150;
 
   return (
-    <Card className="overflow-hidden flex flex-col h-full shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group cursor-pointer">
+    <Card className="overflow-hidden flex flex-col h-full shadow-md hover:shadow-xl hover:-translate-y-1 active:translate-y-0 active:shadow-md active:scale-[0.98] transition-all duration-150 group cursor-pointer">
       <div className="relative aspect-video w-full overflow-hidden bg-muted rounded-2xl">
         {imageUrl && (
           <Image

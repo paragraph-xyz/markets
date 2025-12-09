@@ -18,6 +18,7 @@ export function usePopularCoins() {
       const response = await api.getPopularCoins();
       return response.coins;
     },
+    staleTime: 30000,
   });
 }
 

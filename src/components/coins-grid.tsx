@@ -42,13 +42,11 @@ export function CoinsGrid() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 8 }).map((_, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton list
-            <CoinCardSkeleton key={i} />
-          ))}
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Array.from({ length: 8 }).map((_, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton list
+          <CoinCardSkeleton key={i} />
+        ))}
       </div>
     );
   }
@@ -62,18 +60,20 @@ export function CoinsGrid() {
   }
 
   return (
-    <div className="flex justify-center">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {coins.map((coin) => (
-          <Link
-            key={coin.id}
-            href={`/coin/${coin.contractAddress}`}
-            prefetch={true}
-          >
-            <CoinCard coin={coin} variant={isPostCoin(coin) ? "post" : "writer"} />
-          </Link>
-        ))}
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {coins.map((coin) => (
+        <Link
+          key={coin.id}
+          href={`/coin/${coin.contractAddress}`}
+          prefetch={true}
+          scroll={false}
+        >
+          <CoinCard
+            coin={coin}
+            variant={isPostCoin(coin) ? "post" : "writer"}
+          />
+        </Link>
+      ))}
     </div>
   );
 }

@@ -8,7 +8,7 @@ export function MainWrapper({ children }: { children: React.ReactNode }) {
 
   return (
     <main
-      className={`flex-1 px-4 py-8 overflow-auto transition-all duration-300 ease-out ${
+      className={`flex-1 px-4 py-8 overflow-auto transition-[margin] duration-300 ease-out ${
         hasCoinSelected ? "md:mr-[400px]" : ""
       }`}
     >
