@@ -114,8 +114,8 @@ export function PostCard({ coin, onTrade }: PostCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden flex flex-col h-full pt-0 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-      <div className="relative aspect-video w-full overflow-hidden bg-muted">
+    <Card className="overflow-hidden flex flex-col h-full shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+      <div className="relative aspect-video w-full overflow-hidden bg-muted rounded-2xl">
         {imageUrl && (
           <Image
             src={imageUrl}
