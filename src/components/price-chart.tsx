@@ -3,6 +3,8 @@
 import {
   type AreaData,
   AreaSeries,
+  type CandlestickData,
+  CandlestickSeries,
   ColorType,
   createChart,
   type IChartApi,
@@ -11,13 +13,21 @@ import {
 import { useEffect, useRef } from "react";
 import type { OHLCVData } from "@/hooks/use-gecko-terminal";
 
+export type ChartType = "area" | "candle";
+
 interface PriceChartProps {
   data: OHLCVData[];
+  chartType?: ChartType;
   isLoading?: boolean;
   className?: string;
 }
 
-export function PriceChart({ data, isLoading, className }: PriceChartProps) {
+export function PriceChart({
+  data,
+  chartType = "area",
+  isLoading,
+  className,
+}: PriceChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   // biome-ignore lint/suspicious/noExplicitAny: lightweight-charts v5 series types are complex
@@ -68,28 +78,54 @@ export function PriceChart({ data, isLoading, className }: PriceChartProps) {
       },
     });
 
-    const series = chart.addSeries(AreaSeries, {
-      lineColor: "rgba(13, 89, 242, 0.75)",
-      topColor: "rgba(13, 89, 242, 0.4)",
-      bottomColor: "rgba(13, 89, 242, 0.05)",
-      lineWidth: 2,
-      priceFormat: {
-        type: "price",
-        precision: 8,
-        minMove: 0.00000001,
-      },
-    });
-
     chartRef.current = chart;
-    seriesRef.current = series;
 
-    // Set the data
-    const chartData: AreaData<Time>[] = data.map((item) => ({
-      time: item.time as Time,
-      value: item.close,
-    }));
+    if (chartType === "candle") {
+      const series = chart.addSeries(CandlestickSeries, {
+        upColor: "#22c55e",
+        downColor: "#ef4444",
+        borderUpColor: "#22c55e",
+        borderDownColor: "#ef4444",
+        wickUpColor: "#22c55e",
+        wickDownColor: "#ef4444",
+        priceFormat: {
+          type: "price",
+          precision: 8,
+          minMove: 0.00000001,
+        },
+      });
 
-    series.setData(chartData);
+      const candleData: CandlestickData<Time>[] = data.map((item) => ({
+        time: item.time as Time,
+        open: item.open,
+        high: item.high,
+        low: item.low,
+        close: item.close,
+      }));
+
+      series.setData(candleData);
+      seriesRef.current = series;
+    } else {
+      const series = chart.addSeries(AreaSeries, {
+        lineColor: "rgba(13, 89, 242, 0.75)",
+        topColor: "rgba(13, 89, 242, 0.4)",
+        bottomColor: "rgba(13, 89, 242, 0.05)",
+        lineWidth: 2,
+        priceFormat: {
+          type: "price",
+          precision: 8,
+          minMove: 0.00000001,
+        },
+      });
+
+      const areaData: AreaData<Time>[] = data.map((item) => ({
+        time: item.time as Time,
+        value: item.close,
+      }));
+
+      series.setData(areaData);
+      seriesRef.current = series;
+    }
     chart.timeScale().fitContent();
 
     const handleResize = () => {
@@ -109,7 +145,7 @@ export function PriceChart({ data, isLoading, className }: PriceChartProps) {
       chartRef.current = null;
       seriesRef.current = null;
     };
-  }, [data]);
+  }, [data, chartType]);
 
   if (isLoading) {
     return (

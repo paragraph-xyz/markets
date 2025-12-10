@@ -3,7 +3,6 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { LogOut, Wallet } from "lucide-react";
 import { useDisconnect } from "wagmi";
-import { GlassBubble } from "@/components/ui/glass-bubble";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { GlassBubble } from "@/components/ui/glass-bubble";
 
 export function WalletButton() {
   const { disconnect } = useDisconnect();
@@ -71,7 +71,9 @@ export function WalletButton() {
                     hoverEffect="expand"
                     className="px-4 py-2 cursor-pointer"
                   >
-                    <span className="font-medium text-destructive">Wrong network</span>
+                    <span className="font-medium text-destructive">
+                      Wrong network
+                    </span>
                   </GlassBubble>
                 );
               }

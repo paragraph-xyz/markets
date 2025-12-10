@@ -54,7 +54,8 @@ export function CoinsGrid() {
   }
 
   const wrapperClass = "flex-1 p-4 md:p-8 overflow-y-auto";
-  const gridClass = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto";
+  const gridClass =
+    "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto";
 
   if (error) {
     return (

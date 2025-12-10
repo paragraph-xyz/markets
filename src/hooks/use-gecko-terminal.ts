@@ -131,8 +131,11 @@ export function usePoolOHLCV(
 }
 
 export function usePriceHistory(tokenAddress: string, timeframe: Timeframe) {
-  const { data: pools, isLoading: isLoadingPools, error: poolsError } =
-    useTokenPools(tokenAddress);
+  const {
+    data: pools,
+    isLoading: isLoadingPools,
+    error: poolsError,
+  } = useTokenPools(tokenAddress);
 
   const topPool = pools?.[0];
   const poolAddress = topPool?.attributes?.address;

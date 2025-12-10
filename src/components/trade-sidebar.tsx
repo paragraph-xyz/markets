@@ -218,7 +218,9 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
           ) : (
             <>
               <XCircle className="size-16 text-destructive mb-4" />
-              <h3 className="text-xl font-semibold font-header">Transaction failed</h3>
+              <h3 className="text-xl font-semibold font-header">
+                Transaction failed
+              </h3>
               <div className="flex items-start gap-2 mt-4 max-w-sm">
                 <p className="text-sm text-destructive flex-1 text-left">
                   {transactionResult.message.length > 100
@@ -267,7 +269,9 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
             <h2 className="text-lg font-semibold font-header">
               Trade ${coin.metadata.symbol}
             </h2>
-            <p className="text-sm text-muted-foreground">{coin.metadata.name}</p>
+            <p className="text-sm text-muted-foreground">
+              {coin.metadata.name}
+            </p>
           </div>
           <button
             type="button"
@@ -279,125 +283,125 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
         </div>
 
         <div className="p-4">
-        <Tabs
-          value={activeTab}
-          onValueChange={(v) => setActiveTab(v as "buy" | "sell")}
-        >
-          <TabsList className="w-full">
-            <TabsTrigger value="buy" className="flex-1">
-              Buy
-            </TabsTrigger>
-            <TabsTrigger value="sell" className="flex-1" disabled={!canSell}>
-              Sell
-            </TabsTrigger>
-          </TabsList>
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as "buy" | "sell")}
+          >
+            <TabsList className="w-full">
+              <TabsTrigger value="buy" className="flex-1">
+                Buy
+              </TabsTrigger>
+              <TabsTrigger value="sell" className="flex-1" disabled={!canSell}>
+                Sell
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="buy" className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <label htmlFor="buy-amount" className="text-sm font-medium">
-                Amount (ETH)
-              </label>
-              <Input
-                id="buy-amount"
-                type="number"
-                placeholder="0.0"
-                value={buyAmount}
-                onChange={(e) => setBuyAmount(e.target.value)}
-                min="0"
-                step="0.01"
-              />
-              <div className="flex flex-wrap gap-2">
-                {ETH_AMOUNTS.map((amount) => (
-                  <Button
-                    key={amount}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setBuyAmount(amount)}
-                  >
-                    {amount} ETH
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            {buyAmount && (
-              <div className="rounded-lg bg-muted p-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">You receive</span>
-                  <span className="font-medium">
-                    {isQuoteLoading
-                      ? "Loading..."
-                      : buyQuote
-                        ? `${Math.floor(
-                            parseFloat(
-                              formatUnits(
-                                BigInt(buyQuote),
-                                coin.metadata.decimals || 18,
-                              ),
-                            ),
-                          ).toLocaleString()} $${coin.metadata.symbol}`
-                        : "-"}
-                  </span>
+            <TabsContent value="buy" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <label htmlFor="buy-amount" className="text-sm font-medium">
+                  Amount (ETH)
+                </label>
+                <Input
+                  id="buy-amount"
+                  type="number"
+                  placeholder="0.0"
+                  value={buyAmount}
+                  onChange={(e) => setBuyAmount(e.target.value)}
+                  min="0"
+                  step="0.01"
+                />
+                <div className="flex flex-wrap gap-2">
+                  {ETH_AMOUNTS.map((amount) => (
+                    <Button
+                      key={amount}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setBuyAmount(amount)}
+                    >
+                      {amount} ETH
+                    </Button>
+                  ))}
                 </div>
               </div>
-            )}
 
-            {isConnected ? (
+              {buyAmount && (
+                <div className="rounded-lg bg-muted p-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">You receive</span>
+                    <span className="font-medium">
+                      {isQuoteLoading
+                        ? "Loading..."
+                        : buyQuote
+                          ? `${Math.floor(
+                              parseFloat(
+                                formatUnits(
+                                  BigInt(buyQuote),
+                                  coin.metadata.decimals || 18,
+                                ),
+                              ),
+                            ).toLocaleString()} $${coin.metadata.symbol}`
+                          : "-"}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {isConnected ? (
+                <Button
+                  onClick={handleBuy}
+                  disabled={!buyAmount || isLoading || isQuoteLoading}
+                  className="w-full"
+                >
+                  {isLoading ? "Processing..." : `Buy $${coin.metadata.symbol}`}
+                </Button>
+              ) : (
+                <Button onClick={handleConnect} className="w-full">
+                  Connect Wallet
+                </Button>
+              )}
+            </TabsContent>
+
+            <TabsContent value="sell" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label htmlFor="sell-amount" className="text-sm font-medium">
+                    Amount (${coin.metadata.symbol})
+                  </label>
+                  <span className="text-xs text-muted-foreground">
+                    Balance: {parseFloat(formattedCoinBalance).toLocaleString()}
+                  </span>
+                </div>
+                <Input
+                  id="sell-amount"
+                  type="number"
+                  placeholder="0.0"
+                  value={sellAmount}
+                  onChange={(e) => setSellAmount(e.target.value)}
+                  min="0"
+                />
+                <div className="flex flex-wrap gap-2">
+                  {PERCENTAGE_AMOUNTS.map((percentage) => (
+                    <Button
+                      key={percentage}
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePercentageSell(percentage)}
+                    >
+                      {percentage}%
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
               <Button
-                onClick={handleBuy}
-                disabled={!buyAmount || isLoading || isQuoteLoading}
+                onClick={handleSell}
+                disabled={!sellAmount || isLoading}
                 className="w-full"
               >
-                {isLoading ? "Processing..." : `Buy $${coin.metadata.symbol}`}
+                {isLoading ? "Processing..." : `Sell $${coin.metadata.symbol}`}
               </Button>
-            ) : (
-              <Button onClick={handleConnect} className="w-full">
-                Connect Wallet
-              </Button>
-            )}
-          </TabsContent>
-
-          <TabsContent value="sell" className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label htmlFor="sell-amount" className="text-sm font-medium">
-                  Amount (${coin.metadata.symbol})
-                </label>
-                <span className="text-xs text-muted-foreground">
-                  Balance: {parseFloat(formattedCoinBalance).toLocaleString()}
-                </span>
-              </div>
-              <Input
-                id="sell-amount"
-                type="number"
-                placeholder="0.0"
-                value={sellAmount}
-                onChange={(e) => setSellAmount(e.target.value)}
-                min="0"
-              />
-              <div className="flex flex-wrap gap-2">
-                {PERCENTAGE_AMOUNTS.map((percentage) => (
-                  <Button
-                    key={percentage}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handlePercentageSell(percentage)}
-                  >
-                    {percentage}%
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <Button
-              onClick={handleSell}
-              disabled={!sellAmount || isLoading}
-              className="w-full"
-            >
-              {isLoading ? "Processing..." : `Sell $${coin.metadata.symbol}`}
-            </Button>
-          </TabsContent>
-        </Tabs>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
