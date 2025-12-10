@@ -13,6 +13,7 @@ import {
 } from "wagmi";
 import { getConnectorClient, switchChain } from "wagmi/actions";
 import { base } from "wagmi/chains";
+import { CompactCoinsList } from "@/components/coins-grid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -259,6 +260,7 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
 
   return (
     <div className="h-full flex flex-col">
+      <CompactCoinsList />
       <div className="flex items-center justify-between p-4 border-b">
         <div>
           <h2 className="text-lg font-semibold font-header">

@@ -1,7 +1,6 @@
 "use client";
 
 import { Check, Copy, Globe } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
 import GeckoTerminal from "@/components/gecko-terminal-icon";
@@ -16,7 +15,6 @@ interface CoinCardProps {
   variant?: CoinCardVariant;
   compact?: boolean;
   isSelected?: boolean;
-  isExpanded?: boolean;
 }
 
 function truncateAddress(address: string) {
@@ -103,7 +101,6 @@ export function CoinCard({
   variant = "writer",
   compact = false,
   isSelected = false,
-  isExpanded = false,
 }: CoinCardProps) {
   const [copied, setCopied] = useState(false);
   const imageUrl = coin.metadata.image || coin.metadata.logoURI;
@@ -132,64 +129,35 @@ export function CoinCard({
 
   if (compact) {
     return (
-      <motion.div
-        layout
-        transition={{ type: "spring", stiffness: 150, damping: 20, mass: 1 }}
-        className={isExpanded ? "w-[248px]" : "w-[64px]"}
+      <div
+        className={`flex items-center gap-4 p-2 rounded-lg cursor-pointer hover:bg-accent transition-colors ${
+          isSelected ? "bg-accent" : ""
+        }`}
       >
-        <GlassBubble
-          variant="auto"
-          tint={isSelected ? "normal" : "none"}
-          color={isSelected ? "primary" : "default"}
-          blur="minimal"
-          hoverEffect="expand"
-          className="p-3 cursor-pointer rounded-xl [&_.liquid-glass-content]:justify-start overflow-hidden"
-        >
-          <div className="flex items-center gap-4 w-full">
-            <motion.div
-              layoutId={`coin-image-${coin.contractAddress}`}
-              className="relative size-10 rounded-lg overflow-hidden bg-muted shrink-0 z-50"
-              transition={{ type: "spring", stiffness: 150, damping: 20, mass: 1 }}
-            >
-              {imageUrl && (
-                <Image
-                  src={imageUrl}
-                  alt={coin.metadata.name}
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-              )}
-            </motion.div>
-            <AnimatePresence>
-              {isExpanded && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="min-w-0 whitespace-nowrap text-left"
-                >
-                  <p className="font-medium text-sm truncate !text-foreground">{coin.metadata.name}</p>
-                  <p className="text-xs !text-muted-foreground">
-                    ${coin.metadata.symbol}
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </GlassBubble>
-      </motion.div>
+        <div className="relative size-10 rounded-lg overflow-hidden bg-muted shrink-0">
+          {imageUrl && (
+            <Image
+              src={imageUrl}
+              alt={coin.metadata.name}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          )}
+        </div>
+        <div className="min-w-0 text-left">
+          <p className="font-medium text-sm truncate">{coin.metadata.name}</p>
+          <p className="text-xs text-muted-foreground">
+            ${coin.metadata.symbol}
+          </p>
+        </div>
+      </div>
     );
   }
 
   return (
     <Card className="overflow-hidden flex flex-col h-full shadow-md hover:shadow-xl hover:-translate-y-1 active:translate-y-0 active:shadow-md active:scale-[0.98] transition-all duration-150 group cursor-pointer">
-      <motion.div
-        layoutId={`coin-image-${coin.contractAddress}`}
-        className="relative aspect-video w-full overflow-hidden bg-muted rounded-2xl z-50"
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      >
+      <div className="relative aspect-video w-full overflow-hidden bg-muted rounded-2xl">
         {imageUrl && (
           <Image
             src={imageUrl}
@@ -221,7 +189,7 @@ export function CoinCard({
             ${coin.metadata.symbol}
           </span>
         </GlassBubble>
-      </motion.div>
+      </div>
       <CardHeader className=" gap-1 flex-1 flex flex-col">
         <div className="p-2 flex-1">
           <span className="text-lg font-semibold line-clamp-2">

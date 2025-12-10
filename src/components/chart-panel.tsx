@@ -30,7 +30,7 @@ export function ChartPanel() {
   }
 
   return (
-    <div className="hidden md:flex flex-col flex-1 bg-card/50 pl-24">
+    <div className="hidden md:flex flex-col flex-1 bg-card/50">
       <div className="p-4 flex items-center justify-center relative">
         {poolName && (
           <p className="text-sm font-semibold text-muted-foreground">{poolName}</p>

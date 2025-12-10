@@ -1,9 +1,7 @@
 "use client";
 
-import { LayoutGroup } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import { CoinCard } from "@/components/coin-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { type Coin, usePopularCoins } from "@/hooks/use-paragraph";
@@ -47,18 +45,16 @@ function isPostCoin(coin: Coin): boolean {
 export function CoinsGrid() {
   const pathname = usePathname();
   const hasCoinSelected = pathname.startsWith("/coin/");
-  const selectedAddress = hasCoinSelected ? pathname.split("/coin/")[1] : null;
-  const [isHovered, setIsHovered] = useState(false);
 
   const { data: coins, isLoading, error } = usePopularCoins();
 
-  const wrapperClass = hasCoinSelected
-    ? "fixed left-4 top-20 bottom-4 w-[280px] overflow-y-auto p-4 hidden md:block z-50"
-    : "flex-1 p-4 md:p-8 overflow-y-auto";
+  // When a coin is selected, don't render the grid here - it will be in the sidebar
+  if (hasCoinSelected) {
+    return null;
+  }
 
-  const gridClass = hasCoinSelected
-    ? "flex flex-col items-start gap-3"
-    : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto";
+  const wrapperClass = "flex-1 p-4 md:p-8 overflow-y-auto";
+  const gridClass = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto";
 
   if (error) {
     return (
@@ -94,31 +90,66 @@ export function CoinsGrid() {
   }
 
   return (
-    <div
-      className={wrapperClass}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <LayoutGroup>
-        <div className={gridClass}>
-          {coins.map((coin) => (
-            <Link
-              key={coin.id}
-              href={`/coin/${coin.contractAddress}`}
-              prefetch={true}
-              scroll={false}
-            >
-              <CoinCard
-                coin={coin}
-                variant={isPostCoin(coin) ? "post" : "writer"}
-                compact={hasCoinSelected}
-                isSelected={selectedAddress === coin.contractAddress}
-                isExpanded={isHovered}
-              />
-            </Link>
-          ))}
-        </div>
-      </LayoutGroup>
+    <div className={wrapperClass}>
+      <div className={gridClass}>
+        {coins.map((coin) => (
+          <Link
+            key={coin.id}
+            href={`/coin/${coin.contractAddress}`}
+            prefetch={true}
+            scroll={false}
+          >
+            <CoinCard
+              coin={coin}
+              variant={isPostCoin(coin) ? "post" : "writer"}
+            />
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function CompactCoinsList() {
+  const pathname = usePathname();
+  const selectedAddress = pathname.startsWith("/coin/")
+    ? pathname.split("/coin/")[1]
+    : null;
+
+  const { data: coins, isLoading } = usePopularCoins();
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-2 p-4 border-b">
+        {Array.from({ length: 4 }).map((_, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: Static skeleton list
+          <CoinCardSkeleton key={i} compact />
+        ))}
+      </div>
+    );
+  }
+
+  if (!coins || coins.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-col gap-2 p-4 border-b max-h-[300px] overflow-y-auto">
+      {coins.map((coin) => (
+        <Link
+          key={coin.id}
+          href={`/coin/${coin.contractAddress}`}
+          prefetch={true}
+          scroll={false}
+        >
+          <CoinCard
+            coin={coin}
+            variant={isPostCoin(coin) ? "post" : "writer"}
+            compact
+            isSelected={selectedAddress === coin.contractAddress}
+          />
+        </Link>
+      ))}
     </div>
   );
 }

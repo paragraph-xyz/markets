@@ -17,7 +17,7 @@ export function SidebarWrapper({ children }: { children: React.ReactNode }) {
         {children}
       </aside>
       {/* Desktop: Fixed width sidebar in flex layout */}
-      <aside className="hidden md:block w-[400px] shrink-0 bg-card overflow-y-auto">
+      <aside className="hidden md:block w-[400px] shrink-0 bg-card overflow-y-auto border-l-2 border-border">
         {children}
       </aside>
     </>
