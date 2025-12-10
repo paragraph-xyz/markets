@@ -13,8 +13,8 @@ export function Header() {
           hoverEffect="expand"
           className="px-5 py-3 rounded-2xl flex items-center"
         >
-          <ParagraphIcon size={22} />
-          <h1 className="text-xl font-bold font-header ml-2">Paragraph Markets</h1>
+          <ParagraphIcon size={22} className="mr-4" />
+          <h1 className="text-xl font-bold font-header">Paragraph Markets</h1>
         </GlassBubble>
         <WalletButton />
       </div>

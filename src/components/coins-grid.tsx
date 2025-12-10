@@ -3,6 +3,7 @@
 import { LayoutGroup } from "motion/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { CoinCard } from "@/components/coin-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { type Coin, usePopularCoins } from "@/hooks/use-paragraph";
@@ -10,7 +11,7 @@ import { type Coin, usePopularCoins } from "@/hooks/use-paragraph";
 function CoinCardSkeleton({ compact }: { compact?: boolean }) {
   if (compact) {
     return (
-      <div className="rounded-lg border bg-card p-3 flex items-center gap-3">
+      <div className="rounded-xl bg-background/50 backdrop-blur p-3 flex items-center gap-3">
         <Skeleton className="size-10 rounded-lg shrink-0" />
         <div className="flex-1 space-y-2">
           <Skeleton className="h-4 w-20" />
@@ -47,15 +48,16 @@ export function CoinsGrid() {
   const pathname = usePathname();
   const hasCoinSelected = pathname.startsWith("/coin/");
   const selectedAddress = hasCoinSelected ? pathname.split("/coin/")[1] : null;
+  const [isHovered, setIsHovered] = useState(false);
 
   const { data: coins, isLoading, error } = usePopularCoins();
 
   const wrapperClass = hasCoinSelected
-    ? "w-[280px] shrink-0 bg-card/50 overflow-y-auto p-4 hidden md:block"
+    ? "fixed left-4 top-20 bottom-4 w-[280px] overflow-y-auto p-4 hidden md:block z-50"
     : "flex-1 p-4 md:p-8 overflow-y-auto";
 
   const gridClass = hasCoinSelected
-    ? "flex flex-col gap-3"
+    ? "flex flex-col items-start gap-3"
     : "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto";
 
   if (error) {
@@ -92,12 +94,11 @@ export function CoinsGrid() {
   }
 
   return (
-    <div className={wrapperClass}>
-      {hasCoinSelected && (
-        <h2 className="font-semibold text-sm mb-3 text-muted-foreground">
-          All Coins
-        </h2>
-      )}
+    <div
+      className={wrapperClass}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <LayoutGroup>
         <div className={gridClass}>
           {coins.map((coin) => (
@@ -112,6 +113,7 @@ export function CoinsGrid() {
                 variant={isPostCoin(coin) ? "post" : "writer"}
                 compact={hasCoinSelected}
                 isSelected={selectedAddress === coin.contractAddress}
+                isExpanded={isHovered}
               />
             </Link>
           ))}
