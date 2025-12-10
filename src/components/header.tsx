@@ -5,9 +5,9 @@ import { WalletButton } from "@/components/wallet-button";
 
 export function Header() {
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100]">
+    <header className="fixed top-0 left-0 right-0 z-[100] pointer-events-none">
       <div className="w-full px-4 pt-4 pb-4 flex items-center justify-between gap-4">
-        <Link href="/">
+        <Link href="/" className="pointer-events-auto">
           <GlassBubble
             variant="auto"
             tint="normal"
@@ -19,7 +19,9 @@ export function Header() {
             <h1 className="text-xl font-bold font-header">Paragraph Markets</h1>
           </GlassBubble>
         </Link>
-        <WalletButton />
+        <div className="pointer-events-auto">
+          <WalletButton />
+        </div>
       </div>
     </header>
   );
