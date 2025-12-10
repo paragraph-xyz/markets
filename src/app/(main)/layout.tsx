@@ -10,13 +10,11 @@ export default function MainLayout({
   sidebar: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background flex overflow-hidden">
       <Header />
-      <div className="flex-1 flex overflow-hidden">
-        <CoinsGrid />
-        <ChartPanel />
-        <SidebarWrapper>{sidebar}</SidebarWrapper>
-      </div>
+      <CoinsGrid />
+      <ChartPanel />
+      <SidebarWrapper>{sidebar}</SidebarWrapper>
     </div>
   );
 }

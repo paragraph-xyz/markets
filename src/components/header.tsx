@@ -5,8 +5,8 @@ import { WalletButton } from "@/components/wallet-button";
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-[100]">
-      <div className="w-full px-4 py-3 flex items-center justify-between gap-4">
+    <header className="fixed top-0 left-0 right-0 z-[100]">
+      <div className="w-full px-4 pt-4 pb-4 flex items-center justify-between gap-4">
         <Link href="/">
           <GlassBubble
             variant="auto"

@@ -261,23 +261,24 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
   return (
     <div className="h-full flex flex-col">
       <CompactCoinsList />
-      <div className="flex items-center justify-between p-4 border-b">
-        <div>
-          <h2 className="text-lg font-semibold font-header">
-            Trade ${coin.metadata.symbol}
-          </h2>
-          <p className="text-sm text-muted-foreground">{coin.metadata.name}</p>
+      <div className="shrink-0">
+        <div className="flex items-center justify-between p-4 border-b">
+          <div>
+            <h2 className="text-lg font-semibold font-header">
+              Trade ${coin.metadata.symbol}
+            </h2>
+            <p className="text-sm text-muted-foreground">{coin.metadata.name}</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="p-1 hover:bg-muted rounded-lg transition-colors"
+          >
+            <X className="size-5" />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={handleClose}
-          className="p-1 hover:bg-muted rounded-lg transition-colors"
-        >
-          <X className="size-5" />
-        </button>
-      </div>
 
-      <div className="flex-1 p-4 overflow-auto">
+        <div className="p-4">
         <Tabs
           value={activeTab}
           onValueChange={(v) => setActiveTab(v as "buy" | "sell")}
@@ -397,6 +398,7 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
             </Button>
           </TabsContent>
         </Tabs>
+        </div>
       </div>
     </div>
   );

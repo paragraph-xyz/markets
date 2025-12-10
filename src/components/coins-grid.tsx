@@ -134,7 +134,7 @@ export function CompactCoinsList() {
   }
 
   return (
-    <div className="flex flex-col gap-2 p-4 border-b max-h-[300px] overflow-y-auto">
+    <div className="flex flex-col gap-2 p-4 border-b flex-1 min-h-0 overflow-y-auto">
       {coins.map((coin) => (
         <Link
           key={coin.id}

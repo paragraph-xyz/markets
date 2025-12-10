@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { PriceChart } from "@/components/price-chart";
 import { Button } from "@/components/ui/button";
+import { ContentPanel } from "@/components/ui/content-panel";
 import { type Timeframe, usePriceHistory } from "@/hooks/use-gecko-terminal";
 
 const TIMEFRAMES: { label: string; value: Timeframe }[] = [
@@ -30,19 +31,19 @@ export function ChartPanel() {
   }
 
   return (
-    <div className="hidden md:flex flex-col flex-1 bg-card/50">
-      <div className="p-4 flex items-center justify-center relative">
+    <ContentPanel className="hidden md:flex flex-1 h-screen" innerClassName="flex flex-col rounded-lg">
+      <div className="p-4 flex items-center justify-between">
         {poolName && (
           <p className="text-sm font-semibold text-muted-foreground">{poolName}</p>
         )}
-        <div className="flex gap-1 absolute right-4">
+        <div className="flex gap-1">
           {TIMEFRAMES.map((tf) => (
             <Button
               key={tf.value}
               variant={timeframe === tf.value ? "default" : "ghost"}
               size="sm"
               onClick={() => setTimeframe(tf.value)}
-              className="h-7 px-2 text-xs"
+              className="h-7 px-2 text-xs min-w-10"
             >
               {tf.label}
             </Button>
@@ -63,6 +64,6 @@ export function ChartPanel() {
           </p>
         </div>
       )}
-    </div>
+    </ContentPanel>
   );
 }

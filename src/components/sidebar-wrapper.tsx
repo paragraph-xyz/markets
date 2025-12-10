@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { ContentPanel } from "@/components/ui/content-panel";
 
 export function SidebarWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -17,9 +18,12 @@ export function SidebarWrapper({ children }: { children: React.ReactNode }) {
         {children}
       </aside>
       {/* Desktop: Fixed width sidebar in flex layout */}
-      <aside className="hidden md:block w-[400px] shrink-0 bg-card overflow-y-auto border-l-2 border-border">
+      <ContentPanel
+        className="hidden md:flex h-screen w-[400px] shrink-0 pl-0"
+        innerClassName="rounded-lg overflow-hidden"
+      >
         {children}
-      </aside>
+      </ContentPanel>
     </>
   );
 }
