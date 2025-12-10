@@ -177,8 +177,9 @@
     corner-shape: superellipse(1.6);
   }
 
-  body {
+  html, body {
     @apply bg-background text-foreground;
+    overscroll-behavior: none;
   }
 }
 
