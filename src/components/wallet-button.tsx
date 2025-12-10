@@ -49,7 +49,7 @@ export function WalletButton() {
                   <GlassBubble
                     onClick={openConnectModal}
                     variant="pill"
-                    tint="normal"
+                    tint="heavy"
                     blur="normal"
                     hoverEffect="expand"
                     className="px-4 py-2 cursor-pointer flex items-center gap-2"
@@ -65,7 +65,7 @@ export function WalletButton() {
                   <GlassBubble
                     onClick={openConnectModal}
                     variant="pill"
-                    tint="normal"
+                    tint="heavy"
                     blur="normal"
                     color="primary"
                     hoverEffect="expand"
@@ -83,7 +83,7 @@ export function WalletButton() {
                   <DropdownMenuTrigger asChild>
                     <GlassBubble
                       variant="icon"
-                      tint="normal"
+                      tint="heavy"
                       blur="normal"
                       hoverEffect="expand"
                       className="cursor-pointer"

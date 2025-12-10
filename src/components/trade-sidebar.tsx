@@ -15,8 +15,10 @@ import { getConnectorClient, switchChain } from "wagmi/actions";
 import { base } from "wagmi/chains";
 import { CompactCoinsList } from "@/components/coins-grid";
 import { Button } from "@/components/ui/button";
+import { CurrencyToggle } from "@/components/ui/currency-toggle";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useEthPrice } from "@/hooks/use-eth-price";
 import { type Coin, useParagraphAPI, useQuote } from "@/hooks/use-paragraph";
 
 interface TradeSidebarProps {
@@ -24,6 +26,7 @@ interface TradeSidebarProps {
 }
 
 const ETH_AMOUNTS = ["0.001", "0.01", "0.05", "0.1"];
+const USD_AMOUNTS = [5, 25, 50, 100];
 const PERCENTAGE_AMOUNTS = [10, 25, 50, 75, 100];
 
 type TransactionResult =
@@ -50,8 +53,10 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
   const [transactionResult, setTransactionResult] =
     useState<TransactionResult>(null);
   const [copiedError, setCopiedError] = useState(false);
+  const [currency, setCurrency] = useState<"eth" | "usd">("eth");
 
   const { address, isConnected } = useConnection();
+  const { ethPrice } = useEthPrice();
   const { connect } = useConnect();
   const connectors = useConnectors();
   const config = useConfig();
@@ -68,7 +73,11 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
     },
   });
 
-  const buyAmountWei = buyAmount ? parseEther(buyAmount) : 0n;
+  const buyAmountInEth =
+    currency === "usd" && ethPrice && buyAmount
+      ? (parseFloat(buyAmount) / ethPrice).toString()
+      : buyAmount;
+  const buyAmountWei = buyAmountInEth ? parseEther(buyAmountInEth) : 0n;
   const { data: buyQuote, isLoading: isQuoteLoading } = useQuote(
     coin.id,
     buyAmountWei,
@@ -298,9 +307,12 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
 
             <TabsContent value="buy" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <label htmlFor="buy-amount" className="text-sm font-medium">
-                  Amount (ETH)
-                </label>
+                <div className="flex items-center justify-between">
+                  <label htmlFor="buy-amount" className="text-sm font-medium">
+                    Amount
+                  </label>
+                  <CurrencyToggle value={currency} onChange={setCurrency} />
+                </div>
                 <Input
                   id="buy-amount"
                   type="number"
@@ -308,19 +320,32 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
                   value={buyAmount}
                   onChange={(e) => setBuyAmount(e.target.value)}
                   min="0"
-                  step="0.01"
+                  step={currency === "eth" ? "0.01" : "1"}
                 />
-                <div className="flex flex-wrap gap-2">
-                  {ETH_AMOUNTS.map((amount) => (
-                    <Button
-                      key={amount}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setBuyAmount(amount)}
-                    >
-                      {amount} ETH
-                    </Button>
-                  ))}
+                <div className="grid grid-cols-4 gap-2">
+                  {currency === "eth"
+                    ? ETH_AMOUNTS.map((amount) => (
+                        <Button
+                          key={amount}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setBuyAmount(amount)}
+                        >
+                          {amount}{" "}
+                          <span className="text-muted-foreground">Ξ</span>
+                        </Button>
+                      ))
+                    : USD_AMOUNTS.map((amount) => (
+                        <Button
+                          key={amount}
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setBuyAmount(amount.toString())}
+                        >
+                          <span className="px-1 text-muted-foreground">$</span>
+                          {amount}
+                        </Button>
+                      ))}
                 </div>
               </div>
 

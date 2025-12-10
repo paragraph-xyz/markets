@@ -10,7 +10,7 @@ export function Header() {
         <Link href="/" className="pointer-events-auto">
           <GlassBubble
             variant="auto"
-            tint="normal"
+            tint="heavy"
             blur="normal"
             hoverEffect="expand"
             className="px-5 py-3 rounded-2xl flex items-center"
