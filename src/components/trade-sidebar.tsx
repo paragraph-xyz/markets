@@ -1,8 +1,9 @@
 "use client";
 
-import { Check, CheckCircle2, Copy, X, XCircle } from "lucide-react";
+import { CheckCircle2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { createWalletClient, custom, formatUnits, parseEther } from "viem";
 import {
   useConfig,
@@ -29,10 +30,54 @@ const ETH_AMOUNTS = ["0.001", "0.01", "0.05", "0.1"];
 const USD_AMOUNTS = [5, 25, 50, 100];
 const PERCENTAGE_AMOUNTS = [10, 25, 50, 75, 100];
 
-type TransactionResult =
-  | { type: "success"; action: "buy" | "sell" }
-  | { type: "error"; message: string }
-  | null;
+type TransactionResult = { action: "buy" | "sell" } | null;
+
+function isUserRejection(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : "";
+  const lowerMessage = message.toLowerCase();
+  return (
+    lowerMessage.includes("user rejected") ||
+    lowerMessage.includes("user denied") ||
+    lowerMessage.includes("user cancelled") ||
+    lowerMessage.includes("rejected the request")
+  );
+}
+
+function getErrorMessage(error: unknown): string {
+  const message =
+    error instanceof Error ? error.message : "An unknown error occurred";
+  const lowerMessage = message.toLowerCase();
+
+  if (isUserRejection(error)) {
+    return "Transaction cancelled";
+  }
+
+  if (lowerMessage.includes("insufficient funds")) {
+    return "Insufficient funds for this transaction";
+  }
+
+  if (
+    lowerMessage.includes("nonce") ||
+    lowerMessage.includes("replacement transaction")
+  ) {
+    return "Transaction conflict. Please try again";
+  }
+
+  if (lowerMessage.includes("gas")) {
+    return "Gas estimation failed. The transaction may fail";
+  }
+
+  if (lowerMessage.includes("network") || lowerMessage.includes("timeout")) {
+    return "Network error. Please check your connection";
+  }
+
+  // Truncate long messages
+  if (message.length > 80) {
+    return `${message.slice(0, 80)}...`;
+  }
+
+  return message;
+}
 
 const ERC20_ABI = [
   {
@@ -52,7 +97,6 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [transactionResult, setTransactionResult] =
     useState<TransactionResult>(null);
-  const [copiedError, setCopiedError] = useState(false);
   const [currency, setCurrency] = useState<"eth" | "usd">("eth");
 
   const { address, isConnected } = useConnection();
@@ -120,12 +164,12 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
         account: walletClient.account,
         amount: buyAmountWei,
       });
-      setTransactionResult({ type: "success", action: "buy" });
+      setTransactionResult({ action: "buy" });
     } catch (error) {
-      console.error("Buy failed:", error);
-      const message =
-        error instanceof Error ? error.message : "An unknown error occurred";
-      setTransactionResult({ type: "error", message });
+      if (!isUserRejection(error)) {
+        console.error("Buy failed:", error);
+      }
+      toast.error(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -159,12 +203,12 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
         account: walletClient.account,
         amount: sellAmountWei,
       });
-      setTransactionResult({ type: "success", action: "sell" });
+      setTransactionResult({ action: "sell" });
     } catch (error) {
-      console.error("Sell failed:", error);
-      const message =
-        error instanceof Error ? error.message : "An unknown error occurred";
-      setTransactionResult({ type: "error", message });
+      if (!isUserRejection(error)) {
+        console.error("Sell failed:", error);
+      }
+      toast.error(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -210,53 +254,17 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
           </button>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
-          {transactionResult.type === "success" ? (
-            <>
-              <CheckCircle2 className="size-16 text-green-500 mb-4" />
-              <h3 className="text-xl font-semibold font-header">
-                {transactionResult.action === "buy"
-                  ? "Coins purchased successfully!"
-                  : "Coins sold successfully!"}
-              </h3>
-              <p className="text-sm text-muted-foreground mt-2 max-w-sm">
-                {transactionResult.action === "buy"
-                  ? "You're now invested in this content. Share it to drive engagement and pump the value of your position."
-                  : "Your position has been closed and funds are now available. Thanks for supporting quality content!"}
-              </p>
-            </>
-          ) : (
-            <>
-              <XCircle className="size-16 text-destructive mb-4" />
-              <h3 className="text-xl font-semibold font-header">
-                Transaction failed
-              </h3>
-              <div className="flex items-start gap-2 mt-4 max-w-sm">
-                <p className="text-sm text-destructive flex-1 text-left">
-                  {transactionResult.message.length > 100
-                    ? `${transactionResult.message.slice(0, 100)}...`
-                    : transactionResult.message}
-                </p>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await navigator.clipboard.writeText(
-                      transactionResult.message,
-                    );
-                    setCopiedError(true);
-                    setTimeout(() => setCopiedError(false), 2000);
-                  }}
-                  className="p-1 hover:bg-muted rounded transition-colors shrink-0"
-                  title="Copy full error"
-                >
-                  {copiedError ? (
-                    <Check className="size-4 text-green-500" />
-                  ) : (
-                    <Copy className="size-4 text-muted-foreground" />
-                  )}
-                </button>
-              </div>
-            </>
-          )}
+          <CheckCircle2 className="size-16 text-green-500 mb-4" />
+          <h3 className="text-xl font-semibold font-header">
+            {transactionResult.action === "buy"
+              ? "Coins purchased successfully!"
+              : "Coins sold successfully!"}
+          </h3>
+          <p className="text-sm text-muted-foreground mt-2 max-w-sm">
+            {transactionResult.action === "buy"
+              ? "You're now invested in this content. Share it to drive engagement and pump the value of your position."
+              : "Your position has been closed and funds are now available. Thanks for supporting quality content!"}
+          </p>
           <Button onClick={handleCloseResult} className="mt-6">
             Close
           </Button>

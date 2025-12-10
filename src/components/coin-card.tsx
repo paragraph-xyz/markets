@@ -116,8 +116,10 @@ export function CoinCard({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleLinkClick = (e: React.MouseEvent) => {
+  const handleLinkClick = (e: React.MouseEvent, url: string) => {
+    e.preventDefault();
     e.stopPropagation();
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   const isPost = variant === "post";
@@ -205,29 +207,25 @@ export function CoinCard({
         <div className="p-2">
           <div className="flex items-center gap-2">
             {socialLinks.map((link) => (
-              <a
+              <button
                 key={link.name}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-foreground transition-colors"
+                type="button"
+                className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 title={link.name}
-                onClick={handleLinkClick}
+                onClick={(e) => handleLinkClick(e, link.url)}
               >
                 {link.icon}
-              </a>
+              </button>
             ))}
           </div>
           <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-            <a
-              href={basescanUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-mono hover:text-foreground transition-colors"
-              onClick={handleLinkClick}
+            <button
+              type="button"
+              className="font-mono hover:text-foreground transition-colors cursor-pointer"
+              onClick={(e) => handleLinkClick(e, basescanUrl)}
             >
               {truncateAddress(coin.contractAddress)}
-            </a>
+            </button>
             <button
               type="button"
               onClick={handleCopyAddress}

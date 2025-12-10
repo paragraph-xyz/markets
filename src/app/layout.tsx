@@ -1,6 +1,7 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Libre_Baskerville } from "next/font/google";
+import { Toaster } from "sonner";
 import { Providers } from "@/components/providers";
 import { LiquidGlassFilter } from "@/components/ui/liquid-glass-filter";
 import "./globals.css";
@@ -38,6 +39,14 @@ export default function RootLayout({
       >
         <LiquidGlassFilter />
         <Providers>{children}</Providers>
+        <Toaster
+          position="bottom-left"
+          toastOptions={{
+            style: {
+              borderRadius: "2rem",
+            },
+          }}
+        />
       </body>
     </html>
   );
