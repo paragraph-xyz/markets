@@ -22,7 +22,7 @@ const TIMEFRAMES: { label: string; value: Timeframe }[] = [
 export function ChartPanel() {
   const pathname = usePathname();
   const [timeframe, setTimeframe] = useState<Timeframe>("1d");
-  const [chartType, setChartType] = useState<ChartType>("area");
+  const [chartType, setChartType] = useState<ChartType>("candle");
 
   const hasCoinSelected = pathname.startsWith("/coin/");
   const tokenAddress = hasCoinSelected ? pathname.split("/coin/")[1] : null;
