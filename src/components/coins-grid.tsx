@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 import { CoinCard } from "@/components/coin-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { type Coin, usePopularCoins } from "@/hooks/use-paragraph";
+import { useTokenPrices } from "@/hooks/use-token-prices";
 
 function CoinCardSkeleton({ compact }: { compact?: boolean }) {
   if (compact) {
@@ -47,6 +49,17 @@ export function CoinsGrid() {
   const hasCoinSelected = pathname.startsWith("/coin/");
 
   const { data: coins, isLoading, error } = usePopularCoins();
+
+  const addresses = useMemo(
+    () => coins?.map((coin) => coin.contractAddress) ?? [],
+    [coins],
+  );
+  const { data: priceData, isLoading: priceLoading, error: priceError } = useTokenPrices(addresses);
+
+  console.log("[CoinsGrid] addresses:", addresses);
+  console.log("[CoinsGrid] priceData:", priceData);
+  console.log("[CoinsGrid] priceLoading:", priceLoading);
+  console.log("[CoinsGrid] priceError:", priceError);
 
   // When a coin is selected, don't render the grid here - it will be in the sidebar
   if (hasCoinSelected) {
@@ -103,6 +116,7 @@ export function CoinsGrid() {
             <CoinCard
               coin={coin}
               variant={isPostCoin(coin) ? "post" : "writer"}
+              priceData={priceData?.[coin.contractAddress.toLowerCase()]}
             />
           </Link>
         ))}
@@ -118,6 +132,12 @@ export function CompactCoinsList() {
     : null;
 
   const { data: coins, isLoading } = usePopularCoins();
+
+  const addresses = useMemo(
+    () => coins?.map((coin) => coin.contractAddress) ?? [],
+    [coins],
+  );
+  const { data: priceData } = useTokenPrices(addresses);
 
   if (isLoading) {
     return (
@@ -148,6 +168,7 @@ export function CompactCoinsList() {
             variant={isPostCoin(coin) ? "post" : "writer"}
             compact
             isSelected={selectedAddress === coin.contractAddress}
+            priceData={priceData?.[coin.contractAddress.toLowerCase()]}
           />
         </Link>
       ))}

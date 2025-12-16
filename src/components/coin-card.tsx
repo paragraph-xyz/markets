@@ -7,6 +7,8 @@ import GeckoTerminal from "@/components/gecko-terminal-icon";
 import { Card, CardHeader } from "@/components/ui/card";
 import { GlassBubble } from "@/components/ui/glass-bubble";
 import type { Coin } from "@/hooks/use-paragraph";
+import type { TokenPriceData } from "@/hooks/use-token-prices";
+import { formatMarketCap, formatUsdPrice } from "@/lib/utils";
 
 type CoinCardVariant = "writer" | "post";
 
@@ -15,6 +17,7 @@ interface CoinCardProps {
   variant?: CoinCardVariant;
   compact?: boolean;
   isSelected?: boolean;
+  priceData?: TokenPriceData;
 }
 
 function truncateAddress(address: string) {
@@ -101,7 +104,9 @@ export function CoinCard({
   variant = "writer",
   compact = false,
   isSelected = false,
+  priceData,
 }: CoinCardProps) {
+  console.log("[CoinCard]", coin.metadata.symbol, "priceData:", priceData, "address:", coin.contractAddress.toLowerCase());
   const [copied, setCopied] = useState(false);
   const imageUrl = coin.metadata.image || coin.metadata.logoURI;
   const basescanUrl = `https://basescan.org/address/${coin.contractAddress}`;
@@ -147,10 +152,15 @@ export function CoinCard({
             />
           )}
         </div>
-        <div className="min-w-0 text-left">
+        <div className="min-w-0 text-left flex-1">
           <p className="font-medium text-sm truncate">{coin.metadata.name}</p>
           <p className="text-xs text-muted-foreground">
             ${coin.metadata.symbol}
+          </p>
+        </div>
+        <div className="text-right shrink-0">
+          <p className="font-medium text-sm tabular-nums">
+            {formatUsdPrice(priceData?.priceUsd)}
           </p>
         </div>
       </div>
@@ -203,6 +213,21 @@ export function CoinCard({
               {showEllipsis && "..."}
             </p>
           )}
+        </div>
+        <div className="px-2 pb-1">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="font-semibold tabular-nums">
+              {formatUsdPrice(priceData?.priceUsd)}
+            </span>
+            {priceData?.marketCap != null && (
+              <>
+                <span className="text-muted-foreground">•</span>
+                <span className="text-muted-foreground">
+                  MC {formatMarketCap(priceData.marketCap)}
+                </span>
+              </>
+            )}
+          </div>
         </div>
         <div className="p-2">
           <div className="flex items-center gap-2">
