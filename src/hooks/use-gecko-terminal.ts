@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 const GECKO_TERMINAL_API = "https://api.geckoterminal.com/api/v2";
 const NETWORK = "base";
 
-export type Timeframe = "1h" | "4h" | "1d" | "1w";
+export type Timeframe = "1h" | "4h" | "1d";
 
 interface TimeframeConfig {
   endpoint: "hour" | "day";
@@ -17,7 +17,6 @@ const TIMEFRAME_CONFIG: Record<Timeframe, TimeframeConfig> = {
   "1h": { endpoint: "hour", aggregate: 1, limit: 60 },
   "4h": { endpoint: "hour", aggregate: 4, limit: 42 },
   "1d": { endpoint: "day", aggregate: 1, limit: 30 },
-  "1w": { endpoint: "day", aggregate: 1, limit: 90 },
 };
 
 export interface OHLCVData {
