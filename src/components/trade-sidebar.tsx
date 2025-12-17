@@ -15,11 +15,13 @@ import {
 import { getConnectorClient, switchChain } from "wagmi/actions";
 import { base } from "wagmi/chains";
 import { CompactCoinsList } from "@/components/coins-grid";
+import { PriceChart } from "@/components/price-chart";
 import { Button } from "@/components/ui/button";
 import { CurrencyToggle } from "@/components/ui/currency-toggle";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEthPrice } from "@/hooks/use-eth-price";
+import { usePriceHistory } from "@/hooks/use-gecko-terminal";
 import { type Coin, useParagraphAPI, useQuote } from "@/hooks/use-paragraph";
 
 interface TradeSidebarProps {
@@ -126,6 +128,11 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
     coin.id,
     buyAmountWei,
     buyAmountWei > 0n,
+  );
+
+  const { data: priceData, isLoading: isPriceLoading } = usePriceHistory(
+    coin.contractAddress,
+    "1h",
   );
 
   const hasCoinBalance = coinBalance !== undefined && coinBalance > 0n;
@@ -278,27 +285,40 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
     : "0";
 
   return (
-    <div className="h-full flex flex-col">
-      <CompactCoinsList />
+    <div className="h-full flex flex-col overflow-hidden">
       <div className="shrink-0">
         <div className="flex items-center justify-between p-4 border-b">
-          <div>
-            <h2 className="text-lg font-semibold font-header">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-lg font-semibold font-header truncate">
               Trade ${coin.metadata.symbol}
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground truncate">
               {coin.metadata.name}
             </p>
           </div>
           <button
             type="button"
             onClick={handleClose}
-            className="p-1 hover:bg-muted rounded-lg transition-colors"
+            className="p-1 hover:bg-muted rounded-lg transition-colors shrink-0 ml-2"
           >
             <X className="size-5" />
           </button>
         </div>
 
+        {/* Chart - shows on mobile only (desktop has ChartPanel) */}
+        <div className="md:hidden h-48 border-b">
+          <PriceChart
+            data={priceData}
+            chartType="candle"
+            isLoading={isPriceLoading}
+            className="w-full h-full"
+          />
+        </div>
+      </div>
+
+      <CompactCoinsList />
+
+      <div className="shrink-0 border-t">
         <div className="p-4">
           <Tabs
             value={activeTab}

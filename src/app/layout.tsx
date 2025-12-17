@@ -1,5 +1,5 @@
 import "@rainbow-me/rainbowkit/styles.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Libre_Baskerville } from "next/font/google";
 import { Toaster } from "sonner";
 import { Providers } from "@/components/providers";
@@ -25,6 +25,12 @@ const libreBaskerville = Libre_Baskerville({
 export const metadata: Metadata = {
   title: "Paragraph Markets",
   description: "Trade popular coins on Paragraph",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({

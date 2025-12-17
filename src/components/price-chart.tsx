@@ -47,6 +47,7 @@ export function PriceChart({
     }
 
     const chart = createChart(containerRef.current, {
+      autoSize: true,
       layout: {
         background: { type: ColorType.Solid, color: "transparent" },
         textColor: "#737373",
@@ -55,8 +56,6 @@ export function PriceChart({
         vertLines: { color: "rgba(64, 64, 64, 0.2)" },
         horzLines: { color: "rgba(64, 64, 64, 0.2)" },
       },
-      width: containerRef.current.clientWidth,
-      height: containerRef.current.clientHeight,
       rightPriceScale: {
         borderColor: "#404040",
       },
@@ -128,19 +127,7 @@ export function PriceChart({
     }
     chart.timeScale().fitContent();
 
-    const handleResize = () => {
-      if (containerRef.current) {
-        chart.applyOptions({
-          width: containerRef.current.clientWidth,
-          height: containerRef.current.clientHeight,
-        });
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-
     return () => {
-      window.removeEventListener("resize", handleResize);
       chart.remove();
       chartRef.current = null;
       seriesRef.current = null;

@@ -15,8 +15,11 @@ export function Header() {
             hoverEffect="expand"
             className="px-5 py-3 rounded-2xl flex items-center"
           >
-            <ParagraphIcon size={22} className="mr-4" />
-            <h1 className="text-xl font-bold font-header">Paragraph Markets</h1>
+            <ParagraphIcon size={22} className="mr-2 sm:mr-4 shrink-0" />
+            <h1 className="text-xl font-bold font-header">
+              <span className="hidden sm:inline">Paragraph Markets</span>
+              <span className="sm:hidden">Markets</span>
+            </h1>
           </GlassBubble>
         </Link>
         <div className="pointer-events-auto">
