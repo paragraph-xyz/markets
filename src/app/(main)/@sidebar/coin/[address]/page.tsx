@@ -1,4 +1,4 @@
-import { ParagraphAPI } from "@paragraph-com/sdk";
+import { createParagraphAPI } from "@paragraph_xyz/sdk";
 import { notFound } from "next/navigation";
 import { TradeSidebar } from "@/components/trade-sidebar";
 
@@ -8,7 +8,7 @@ interface CoinSidebarPageProps {
   }>;
 }
 
-const api = new ParagraphAPI();
+const api = createParagraphAPI();
 
 export default async function CoinSidebarPage({
   params,
@@ -16,7 +16,7 @@ export default async function CoinSidebarPage({
   const { address } = await params;
 
   try {
-    const coin = await api.coins.get({ contractAddress: address }).single();
+    const coin = await api.getCoinByContract(address);
     return <TradeSidebar coin={coin} />;
   } catch {
     notFound();
