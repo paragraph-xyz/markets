@@ -165,8 +165,8 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
       if (!walletClient.account) {
         throw new Error("No account connected");
       }
-      await api.buyCoin({
-        coinId: coin.id,
+      await api.coins.buy({
+        coin: { id: coin.id },
         client: walletClient,
         account: walletClient.account,
         amount: buyAmountWei,
@@ -204,8 +204,8 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
       if (!walletClient.account) {
         throw new Error("No account connected");
       }
-      await api.sellCoin({
-        coinId: coin.id,
+      await api.coins.sell({
+        coin: { id: coin.id },
         client: walletClient,
         account: walletClient.account,
         amount: sellAmountWei,
