@@ -4,7 +4,7 @@ import { CheckCircle2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { createWalletClient, custom, formatUnits, parseEther } from "viem";
+import { createWalletClient, custom, formatUnits, parseUnits } from "viem";
 import {
   useConfig,
   useConnect,
@@ -33,6 +33,42 @@ const USD_AMOUNTS = [5, 25, 50, 100];
 const PERCENTAGE_AMOUNTS = [10, 25, 50, 75, 100];
 
 type TransactionResult = { action: "buy" | "sell" } | null;
+
+function getTokenDecimals(coin: Coin): number {
+  const decimals = coin.metadata.decimals;
+  return Number.isInteger(decimals) && decimals >= 0 && decimals <= 255
+    ? decimals
+    : 18;
+}
+
+function parseTokenAmount(value: string, decimals: number): bigint {
+  const input = value.trim();
+  if (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(input)) {
+    return 0n;
+  }
+
+  const normalized = input.startsWith(".")
+    ? `0${input}`
+    : input.endsWith(".")
+      ? input.slice(0, -1)
+      : input;
+
+  try {
+    return parseUnits(normalized, decimals);
+  } catch {
+    return 0n;
+  }
+}
+
+function convertUsdToEth(value: string, ethPrice: number | undefined): string {
+  const usdAmount = Number(value);
+  if (!ethPrice || !Number.isFinite(usdAmount) || usdAmount <= 0) {
+    return "";
+  }
+
+  const ethAmount = usdAmount / ethPrice;
+  return Number.isFinite(ethAmount) ? ethAmount.toFixed(18) : "";
+}
 
 function isUserRejection(error: unknown): boolean {
   const message = error instanceof Error ? error.message : "";
@@ -120,10 +156,8 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
   });
 
   const buyAmountInEth =
-    currency === "usd" && ethPrice && buyAmount
-      ? (parseFloat(buyAmount) / ethPrice).toString()
-      : buyAmount;
-  const buyAmountWei = buyAmountInEth ? parseEther(buyAmountInEth) : 0n;
+    currency === "usd" ? convertUsdToEth(buyAmount, ethPrice) : buyAmount;
+  const buyAmountWei = parseTokenAmount(buyAmountInEth, 18);
   const { data: buyQuote, isLoading: isQuoteLoading } = useQuote(
     coin.id,
     buyAmountWei,
@@ -149,7 +183,10 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
   }, [refetchBalance]);
 
   const handleBuy = async () => {
-    if (!buyAmount) return;
+    if (!buyAmount || buyAmountWei <= 0n) {
+      toast.error("Enter a valid buy amount");
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -185,6 +222,17 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
   const handleSell = async () => {
     if (!sellAmount || !coinBalance) return;
 
+    const decimals = getTokenDecimals(coin);
+    const sellAmountWei = parseTokenAmount(sellAmount, decimals);
+    if (sellAmountWei <= 0n) {
+      toast.error("Enter a valid sell amount");
+      return;
+    }
+    if (sellAmountWei > coinBalance) {
+      toast.error("Sell amount exceeds your balance");
+      return;
+    }
+
     setIsLoading(true);
     try {
       await switchChain(config, { chainId: base.id });
@@ -196,10 +244,6 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
         chain: base,
         transport: custom(connectorClient),
       });
-      const decimals = coin.metadata.decimals || 18;
-      const sellAmountWei = BigInt(
-        Math.floor(parseFloat(sellAmount) * 10 ** decimals),
-      );
 
       if (!walletClient.account) {
         throw new Error("No account connected");
@@ -230,10 +274,9 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
 
   const handlePercentageSell = (percentage: number) => {
     if (!coinBalance) return;
-    const decimals = coin.metadata.decimals || 18;
-    const balance = Number(formatUnits(coinBalance, decimals));
-    const amount = (balance * percentage) / 100;
-    setSellAmount(amount.toString());
+    const decimals = getTokenDecimals(coin);
+    const amount = (coinBalance * BigInt(percentage)) / 100n;
+    setSellAmount(formatUnits(amount, decimals));
   };
 
   const handleClose = () => {
@@ -280,8 +323,9 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
     );
   }
 
+  const tokenDecimals = getTokenDecimals(coin);
   const formattedCoinBalance = coinBalance
-    ? formatUnits(coinBalance, coin.metadata.decimals || 18)
+    ? formatUnits(coinBalance, tokenDecimals)
     : "0";
 
   return (
@@ -389,7 +433,7 @@ export function TradeSidebar({ coin }: TradeSidebarProps) {
                               parseFloat(
                                 formatUnits(
                                   BigInt(buyQuote),
-                                  coin.metadata.decimals || 18,
+                                  tokenDecimals,
                                 ),
                               ),
                             ).toLocaleString()} $${coin.metadata.symbol}`
